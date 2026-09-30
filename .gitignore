@@ -1,0 +1,53 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# PyInstaller / build outputs
+build/
+dist/
+
+# Installers and executables
+*.exe
+*.msi
+
+# Compressed packages
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# Compiled/binary generated files
+*.dll
+*.pyd
+*.pyo
+*.obj
+*.pkg
+*.pyz
+*.toc
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+
+# IDE/editor settings
+.vs/
+.vscode/
+.idea/
+*.user
+
+# Operating system files
+Thumbs.db
+.DS_Store
+
+# Generated automata diagram
+recursos/diagramas/automata_actual.png
