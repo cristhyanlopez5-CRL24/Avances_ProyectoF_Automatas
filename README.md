@@ -153,7 +153,6 @@ python -m venv .venv
 
 Actualmente la aplicación utiliza el Graphviz incluido en `graphviz_bin/`. `main.py` llama a `configurar_graphviz()` de `utilidades/rutas.py` para agregarlo al `PATH` del proceso.
 
-> **Nota:** la integración de Graphviz será revisada posteriormente para evitar mantener ejecutables y bibliotecas binarias dentro del repositorio.
 
 ## 6. Ejecutar las pruebas
 
