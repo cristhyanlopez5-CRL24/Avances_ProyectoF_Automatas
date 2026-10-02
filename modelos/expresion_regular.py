@@ -1,14 +1,19 @@
+from utilidades.validador_regex import (
+    validar_expresion_regular
+)
+
+
 class ExpresionRegular:
     """
     Representa una expresión regular dentro del sistema.
 
-    En esta primera versión solamente almacena:
+    Almacena:
     - Nombre
-    - Expresión original
+    - Expresión regular
     - Alfabeto detectado
 
-    La validación sintáctica y la conversión a autómata
-    se implementarán en pasos posteriores.
+    Antes de crear el objeto se comprueba
+    que la expresión tenga una sintaxis válida.
     """
 
     OPERADORES = {
@@ -27,43 +32,60 @@ class ExpresionRegular:
         nombre,
         expresion
     ):
+
         self.nombre = nombre.strip()
-        self.expresion = expresion.strip()
+
+        self.expresion = (
+            expresion.strip()
+            if expresion is not None
+            else ""
+        )
 
         self._validar_datos_basicos()
+
+        # =====================================================
+        # VALIDACIÓN SINTÁCTICA
+        # =====================================================
+
+        self.expresion = (
+            validar_expresion_regular(
+                self.expresion
+            )
+        )
+
+        # =====================================================
+        # ALFABETO
+        # =====================================================
 
         self.alfabeto = (
             self._obtener_alfabeto()
         )
 
+    # =========================================================
+    # VALIDACIONES BÁSICAS
+    # =========================================================
+
     def _validar_datos_basicos(self):
-        """
-        Comprueba únicamente los datos mínimos
-        necesarios para crear una expresión regular.
-        """
 
         if not self.nombre:
 
             raise ValueError(
-                "La expresión regular debe tener un nombre."
+                "La expresión regular debe "
+                "tener un nombre."
             )
 
         if not self.expresion:
 
             raise ValueError(
-                "La expresión regular no puede estar vacía."
+                "La expresión regular no "
+                "puede estar vacía."
             )
 
+    # =========================================================
+    # OBTENER ALFABETO
+    # =========================================================
+
     def _obtener_alfabeto(self):
-        """
-        Obtiene los símbolos utilizados por la expresión
-        ignorando operadores, paréntesis y epsilon.
-
-        Ejemplo:
-
-        (0|1)*01
-        -> {"0", "1"}
-        """
 
         alfabeto = set()
 
@@ -87,19 +109,21 @@ class ExpresionRegular:
 
         return alfabeto
 
+    # =========================================================
+    # DEVOLVER ALFABETO
+    # =========================================================
+
     def obtener_alfabeto(self):
-        """
-        Devuelve una copia del alfabeto detectado.
-        """
 
         return set(
             self.alfabeto
         )
 
+    # =========================================================
+    # REPRESENTACIÓN
+    # =========================================================
+
     def __str__(self):
-        """
-        Devuelve información básica de la expresión.
-        """
 
         return (
             f"Nombre: {self.nombre}\n"
