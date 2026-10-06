@@ -51,3 +51,6 @@ Thumbs.db
 
 # Generated automata diagram
 recursos/diagramas/automata_actual.png
+
+# Historial generado por la aplicación
+datos/logs_validacion.json

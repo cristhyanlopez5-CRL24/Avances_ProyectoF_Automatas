@@ -52,6 +52,12 @@ from interfaz.expresiones_regulares import (
 
 )
 
+from interfaz.logs_validacion import (
+
+    LogsValidacionFrame
+
+)
+
 class VentanaPrincipal(ctk.CTk):
 
     def __init__(self):
@@ -357,6 +363,34 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         self.btn_regex.pack(
+
+            padx=8,
+
+            pady=4,
+
+            fill="x"
+
+        )
+
+        # -----------------------------------------------------
+
+        # LOGS DE VALIDACIÓN
+
+        # -----------------------------------------------------
+
+        self.btn_logs = ctk.CTkButton(
+
+            self.frame_botones_menu,
+
+            text="Logs de validación",
+
+            height=40,
+
+            command=self.mostrar_logs_validacion
+
+        )
+
+        self.btn_logs.pack(
 
             padx=8,
 
@@ -1624,6 +1658,34 @@ class VentanaPrincipal(ctk.CTk):
 
     # =========================================================
 
+    # LOGS DE VALIDACIÓN
+
+    # =========================================================
+
+    def mostrar_logs_validacion(self):
+
+        self.limpiar_contenido()
+
+        logs = LogsValidacionFrame(
+
+            self.frame_contenido,
+
+            self
+
+        )
+
+        logs.grid(
+
+            row=0,
+
+            column=0,
+
+            sticky="nsew"
+
+        )
+
+    # =========================================================
+
     # SIMULAR CADENA
 
     # =========================================================
@@ -2263,4 +2325,3 @@ class VentanaPrincipal(ctk.CTk):
                 )
 
             )
-
