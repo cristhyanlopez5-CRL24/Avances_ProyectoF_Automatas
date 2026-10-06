@@ -11,7 +11,8 @@ from algoritmos.procesador_regex import (
 )
 
 from algoritmos.integracion_regex import (
-    validar_cadena_con_regex
+    validar_cadena_con_regex,
+    generar_afn_desde_regex
 )
 
 from algoritmos.simulador import (
@@ -42,6 +43,8 @@ class ExpresionesRegularesFrame(
 
         self.datos_procesados = None
 
+        self.afn_generado = None
+
         self.grid_columnconfigure(
             0,
             weight=1
@@ -52,6 +55,8 @@ class ExpresionesRegularesFrame(
         self.crear_formulario()
 
         self.crear_resultado()
+
+        self.crear_generacion_automata()
 
         self.crear_validacion_cadena()
 
@@ -80,7 +85,8 @@ class ExpresionesRegularesFrame(
             self,
             text=(
                 "Ingrese una expresión regular "
-                "para analizarla y validar cadenas."
+                "para analizarla, validar cadenas "
+                "y generar su autómata."
             ),
             font=ctk.CTkFont(
                 size=14
@@ -369,6 +375,117 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
+    # GENERAR AUTÓMATA
+    # =========================================================
+
+    def crear_generacion_automata(self):
+
+        self.frame_generacion = ctk.CTkFrame(
+            self
+        )
+
+        self.frame_generacion.grid(
+            row=5,
+            column=0,
+            padx=30,
+            pady=10,
+            sticky="ew"
+        )
+
+        self.frame_generacion.grid_columnconfigure(
+            0,
+            weight=1
+        )
+
+        ctk.CTkLabel(
+            self.frame_generacion,
+            text="Generar autómata desde la regex",
+            font=ctk.CTkFont(
+                size=19,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 8)
+        )
+
+        ctk.CTkLabel(
+            self.frame_generacion,
+            text=(
+                "La expresión regular será convertida "
+                "a un AFN-ε mediante la construcción "
+                "de Thompson."
+            ),
+            font=ctk.CTkFont(
+                size=13
+            )
+        ).grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(0, 12)
+        )
+
+        self.lbl_generacion = ctk.CTkLabel(
+            self.frame_generacion,
+            text=(
+                "Primero analice una expresión regular."
+            ),
+            font=ctk.CTkFont(
+                size=15,
+                weight="bold"
+            )
+        )
+
+        self.lbl_generacion.grid(
+            row=2,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=8
+        )
+
+        self.btn_generar_afn = ctk.CTkButton(
+            self.frame_generacion,
+            text="Generar AFN",
+            width=180,
+            height=42,
+            command=self.generar_afn
+        )
+
+        self.btn_generar_afn.grid(
+            row=3,
+            column=0,
+            padx=(20, 10),
+            pady=(8, 20),
+            sticky="e"
+        )
+
+        self.btn_ver_afn = ctk.CTkButton(
+            self.frame_generacion,
+            text="Ver diagrama",
+            width=180,
+            height=42,
+            command=(
+                self.ventana_principal
+                .mostrar_diagrama
+            ),
+            state="disabled"
+        )
+
+        self.btn_ver_afn.grid(
+            row=3,
+            column=1,
+            padx=(10, 20),
+            pady=(8, 20),
+            sticky="w"
+        )
+
+    # =========================================================
     # VALIDACIÓN DE CADENA
     # =========================================================
 
@@ -379,7 +496,7 @@ class ExpresionesRegularesFrame(
         )
 
         self.frame_validacion.grid(
-            row=5,
+            row=6,
             column=0,
             padx=30,
             pady=(10, 30),
@@ -390,10 +507,6 @@ class ExpresionesRegularesFrame(
             1,
             weight=1
         )
-
-        # -----------------------------------------------------
-        # TÍTULO
-        # -----------------------------------------------------
 
         ctk.CTkLabel(
             self.frame_validacion,
@@ -468,7 +581,7 @@ class ExpresionesRegularesFrame(
         )
 
         # -----------------------------------------------------
-        # LIMPIAR CADENA
+        # LIMPIAR
         # -----------------------------------------------------
 
         self.btn_limpiar_cadena = ctk.CTkButton(
@@ -486,10 +599,6 @@ class ExpresionesRegularesFrame(
             pady=10
         )
 
-        # -----------------------------------------------------
-        # NOTA EPSILON
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_validacion,
             text=(
@@ -506,10 +615,6 @@ class ExpresionesRegularesFrame(
             padx=20,
             pady=(0, 10)
         )
-
-        # -----------------------------------------------------
-        # ESTADO DE LA VALIDACIÓN
-        # -----------------------------------------------------
 
         self.lbl_resultado_cadena = ctk.CTkLabel(
             self.frame_validacion,
@@ -529,10 +634,6 @@ class ExpresionesRegularesFrame(
             padx=20,
             pady=10
         )
-
-        # -----------------------------------------------------
-        # DETALLE
-        # -----------------------------------------------------
 
         self.txt_validacion = ctk.CTkTextbox(
             self.frame_validacion,
@@ -597,6 +698,8 @@ class ExpresionesRegularesFrame(
 
             self.datos_procesados = datos
 
+            self.afn_generado = None
+
             alfabeto = (
                 "{"
                 + ", ".join(
@@ -631,6 +734,17 @@ class ExpresionesRegularesFrame(
                 )
             )
 
+            self.lbl_generacion.configure(
+                text=(
+                    "Regex lista para generar "
+                    "su AFN-ε."
+                )
+            )
+
+            self.btn_ver_afn.configure(
+                state="disabled"
+            )
+
             self.ventana_principal.lbl_estado.configure(
                 text=(
                     "Estado: Expresión regular "
@@ -644,10 +758,23 @@ class ExpresionesRegularesFrame(
 
             self.datos_procesados = None
 
+            self.afn_generado = None
+
             self.lbl_estado.configure(
                 text=(
                     "EXPRESIÓN REGULAR INVÁLIDA"
                 )
+            )
+
+            self.lbl_generacion.configure(
+                text=(
+                    "No existe una regex válida "
+                    "para generar el AFN."
+                )
+            )
+
+            self.btn_ver_afn.configure(
+                state="disabled"
             )
 
             self.limpiar_resultado()
@@ -657,6 +784,170 @@ class ExpresionesRegularesFrame(
             messagebox.showerror(
                 "Expresión regular inválida",
                 str(error)
+            )
+
+    # =========================================================
+    # GENERAR AFN DESDE REGEX
+    # =========================================================
+
+    def generar_afn(self):
+
+        try:
+
+            expresion = (
+                self.entry_regex
+                .get()
+                .strip()
+            )
+
+            if not expresion:
+
+                raise ValueError(
+                    "Debe ingresar una expresión "
+                    "regular."
+                )
+
+            if self.regex_actual is None:
+
+                raise ValueError(
+                    "Primero debe analizar la "
+                    "expresión regular."
+                )
+
+            if (
+                self.regex_actual.expresion
+                != expresion
+            ):
+
+                raise ValueError(
+                    "La expresión fue modificada. "
+                    "Presione Analizar nuevamente "
+                    "antes de generar el AFN."
+                )
+
+            # -------------------------------------------------
+            # Si existe otro autómata cargado preguntamos
+            # antes de reemplazarlo.
+            # -------------------------------------------------
+
+            if (
+                self.ventana_principal
+                .automata_actual
+                is not None
+            ):
+
+                actual = (
+                    self.ventana_principal
+                    .automata_actual
+                    .nombre
+                )
+
+                respuesta = messagebox.askyesno(
+                    "Reemplazar autómata",
+                    (
+                        "Ya existe un autómata "
+                        "cargado:\n\n"
+                        f"{actual}\n\n"
+                        "El AFN generado desde la "
+                        "expresión regular lo "
+                        "reemplazará en la sesión "
+                        "actual.\n\n"
+                        "¿Desea continuar?"
+                    )
+                )
+
+                if not respuesta:
+
+                    return
+
+            nombre = (
+                self.entry_nombre
+                .get()
+                .strip()
+            )
+
+            if nombre:
+
+                nombre_afn = (
+                    f"AFN - {nombre}"
+                )
+
+            else:
+
+                nombre_afn = (
+                    f"AFN de regex: {expresion}"
+                )
+
+            afn = generar_afn_desde_regex(
+                expresion,
+                nombre=nombre_afn
+            )
+
+            self.afn_generado = afn
+
+            # -------------------------------------------------
+            # Convertimos el AFN generado en el autómata
+            # actual de toda la aplicación.
+            # -------------------------------------------------
+
+            self.ventana_principal.establecer_automata(
+                afn,
+                "AFN"
+            )
+
+            cantidad_transiciones = sum(
+                len(destinos)
+                for destinos
+                in afn.transiciones.values()
+            )
+
+            self.lbl_generacion.configure(
+                text=(
+                    f"AFN GENERADO Y CARGADO\n"
+                    f"{afn.nombre}\n"
+                    f"Estados: "
+                    f"{len(afn.estados)} | "
+                    f"Transiciones: "
+                    f"{cantidad_transiciones}"
+                )
+            )
+
+            self.btn_ver_afn.configure(
+                state="normal"
+            )
+
+            messagebox.showinfo(
+                "AFN generado",
+                (
+                    "La expresión regular fue "
+                    "convertida correctamente "
+                    "a un AFN-ε mediante Thompson.\n\n"
+                    f"Nombre: {afn.nombre}\n"
+                    f"Estados: "
+                    f"{len(afn.estados)}\n"
+                    f"Transiciones: "
+                    f"{cantidad_transiciones}\n\n"
+                    "El AFN ahora es el autómata "
+                    "actual de la aplicación."
+                )
+            )
+
+        except ValueError as error:
+
+            messagebox.showerror(
+                "No se pudo generar el AFN",
+                str(error)
+            )
+
+        except Exception as error:
+
+            messagebox.showerror(
+                "Error al generar AFN",
+                (
+                    "Ocurrió un error al generar "
+                    "el autómata.\n\n"
+                    f"Detalle: {error}"
+                )
             )
 
     # =========================================================
@@ -684,12 +975,6 @@ class ExpresionesRegularesFrame(
                 self.entry_cadena
                 .get()
             )
-
-            # -------------------------------------------------
-            # Volvemos a validar la expresión actual.
-            # Esto evita usar una regex antigua si el usuario
-            # modificó el campo después de analizarla.
-            # -------------------------------------------------
 
             regex = ExpresionRegular(
                 nombre=(
@@ -824,7 +1109,7 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
-    # LIMPIAR ANÁLISIS
+    # LIMPIAR RESULTADO
     # =========================================================
 
     def limpiar_resultado(self):
@@ -900,11 +1185,24 @@ class ExpresionesRegularesFrame(
 
         self.datos_procesados = None
 
+        self.afn_generado = None
+
         self.lbl_estado.configure(
             text=(
                 "Ingrese una expresión regular "
                 "y presione Analizar."
             )
+        )
+
+        self.lbl_generacion.configure(
+            text=(
+                "Primero analice una "
+                "expresión regular."
+            )
+        )
+
+        self.btn_ver_afn.configure(
+            state="disabled"
         )
 
         self.limpiar_resultado()
