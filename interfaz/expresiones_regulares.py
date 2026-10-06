@@ -10,6 +10,14 @@ from algoritmos.procesador_regex import (
     procesar_expresion_regular
 )
 
+from algoritmos.integracion_regex import (
+    validar_cadena_con_regex
+)
+
+from algoritmos.simulador import (
+    formatear_resultado_afn
+)
+
 
 class ExpresionesRegularesFrame(
     ctk.CTkScrollableFrame
@@ -45,6 +53,8 @@ class ExpresionesRegularesFrame(
 
         self.crear_resultado()
 
+        self.crear_validacion_cadena()
+
     # =========================================================
     # ENCABEZADO
     # =========================================================
@@ -70,7 +80,7 @@ class ExpresionesRegularesFrame(
             self,
             text=(
                 "Ingrese una expresión regular "
-                "para analizar su estructura."
+                "para analizarla y validar cadenas."
             ),
             font=ctk.CTkFont(
                 size=14
@@ -101,7 +111,7 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
-    # FORMULARIO
+    # FORMULARIO REGEX
     # =========================================================
 
     def crear_formulario(self):
@@ -124,10 +134,6 @@ class ExpresionesRegularesFrame(
             1,
             weight=1
         )
-
-        # -----------------------------------------------------
-        # TÍTULO
-        # -----------------------------------------------------
 
         ctk.CTkLabel(
             self.frame_formulario,
@@ -180,7 +186,7 @@ class ExpresionesRegularesFrame(
         )
 
         # -----------------------------------------------------
-        # EXPRESIÓN
+        # REGEX
         # -----------------------------------------------------
 
         ctk.CTkLabel(
@@ -282,7 +288,7 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
-    # RESULTADO
+    # RESULTADO DEL ANÁLISIS
     # =========================================================
 
     def crear_resultado(self):
@@ -297,7 +303,7 @@ class ExpresionesRegularesFrame(
             row=4,
             column=0,
             padx=30,
-            pady=(10, 30),
+            pady=10,
             sticky="ew"
         )
 
@@ -342,7 +348,7 @@ class ExpresionesRegularesFrame(
         self.txt_resultado = (
             ctk.CTkTextbox(
                 self.frame_resultado,
-                height=260,
+                height=230,
                 font=(
                     "Consolas",
                     14
@@ -363,7 +369,195 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
-    # ANALIZAR
+    # VALIDACIÓN DE CADENA
+    # =========================================================
+
+    def crear_validacion_cadena(self):
+
+        self.frame_validacion = ctk.CTkFrame(
+            self
+        )
+
+        self.frame_validacion.grid(
+            row=5,
+            column=0,
+            padx=30,
+            pady=(10, 30),
+            sticky="ew"
+        )
+
+        self.frame_validacion.grid_columnconfigure(
+            1,
+            weight=1
+        )
+
+        # -----------------------------------------------------
+        # TÍTULO
+        # -----------------------------------------------------
+
+        ctk.CTkLabel(
+            self.frame_validacion,
+            text="Validar cadena con la expresión regular",
+            font=ctk.CTkFont(
+                size=19,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=4,
+            padx=20,
+            pady=(18, 10)
+        )
+
+        # -----------------------------------------------------
+        # CADENA
+        # -----------------------------------------------------
+
+        ctk.CTkLabel(
+            self.frame_validacion,
+            text="Cadena:",
+            font=ctk.CTkFont(
+                weight="bold"
+            )
+        ).grid(
+            row=1,
+            column=0,
+            padx=(20, 10),
+            pady=10
+        )
+
+        self.entry_cadena = ctk.CTkEntry(
+            self.frame_validacion,
+            placeholder_text=(
+                "Ejemplo: 1101"
+            ),
+            height=42
+        )
+
+        self.entry_cadena.grid(
+            row=1,
+            column=1,
+            padx=10,
+            pady=10,
+            sticky="ew"
+        )
+
+        self.entry_cadena.bind(
+            "<Return>",
+            lambda event: self.validar_cadena()
+        )
+
+        # -----------------------------------------------------
+        # VALIDAR
+        # -----------------------------------------------------
+
+        self.btn_validar_cadena = ctk.CTkButton(
+            self.frame_validacion,
+            text="Validar cadena",
+            width=140,
+            height=42,
+            command=self.validar_cadena
+        )
+
+        self.btn_validar_cadena.grid(
+            row=1,
+            column=2,
+            padx=10,
+            pady=10
+        )
+
+        # -----------------------------------------------------
+        # LIMPIAR CADENA
+        # -----------------------------------------------------
+
+        self.btn_limpiar_cadena = ctk.CTkButton(
+            self.frame_validacion,
+            text="Limpiar",
+            width=100,
+            height=42,
+            command=self.limpiar_validacion
+        )
+
+        self.btn_limpiar_cadena.grid(
+            row=1,
+            column=3,
+            padx=(0, 20),
+            pady=10
+        )
+
+        # -----------------------------------------------------
+        # NOTA EPSILON
+        # -----------------------------------------------------
+
+        ctk.CTkLabel(
+            self.frame_validacion,
+            text=(
+                "Puede dejar la cadena vacía para "
+                "evaluar ε."
+            ),
+            font=ctk.CTkFont(
+                size=12
+            )
+        ).grid(
+            row=2,
+            column=0,
+            columnspan=4,
+            padx=20,
+            pady=(0, 10)
+        )
+
+        # -----------------------------------------------------
+        # ESTADO DE LA VALIDACIÓN
+        # -----------------------------------------------------
+
+        self.lbl_resultado_cadena = ctk.CTkLabel(
+            self.frame_validacion,
+            text=(
+                "Ingrese una cadena para validarla."
+            ),
+            font=ctk.CTkFont(
+                size=16,
+                weight="bold"
+            )
+        )
+
+        self.lbl_resultado_cadena.grid(
+            row=3,
+            column=0,
+            columnspan=4,
+            padx=20,
+            pady=10
+        )
+
+        # -----------------------------------------------------
+        # DETALLE
+        # -----------------------------------------------------
+
+        self.txt_validacion = ctk.CTkTextbox(
+            self.frame_validacion,
+            height=300,
+            font=(
+                "Consolas",
+                14
+            )
+        )
+
+        self.txt_validacion.grid(
+            row=4,
+            column=0,
+            columnspan=4,
+            padx=20,
+            pady=(5, 20),
+            sticky="ew"
+        )
+
+        self.txt_validacion.configure(
+            state="disabled"
+        )
+
+    # =========================================================
+    # ANALIZAR REGEX
     # =========================================================
 
     def analizar(self):
@@ -458,13 +652,125 @@ class ExpresionesRegularesFrame(
 
             self.limpiar_resultado()
 
+            self.limpiar_validacion()
+
             messagebox.showerror(
                 "Expresión regular inválida",
                 str(error)
             )
 
     # =========================================================
-    # MOSTRAR RESULTADO
+    # VALIDAR CADENA
+    # =========================================================
+
+    def validar_cadena(self):
+
+        try:
+
+            expresion = (
+                self.entry_regex
+                .get()
+                .strip()
+            )
+
+            if not expresion:
+
+                raise ValueError(
+                    "Debe ingresar una expresión "
+                    "regular antes de validar la cadena."
+                )
+
+            cadena = (
+                self.entry_cadena
+                .get()
+            )
+
+            # -------------------------------------------------
+            # Volvemos a validar la expresión actual.
+            # Esto evita usar una regex antigua si el usuario
+            # modificó el campo después de analizarla.
+            # -------------------------------------------------
+
+            regex = ExpresionRegular(
+                nombre=(
+                    self.entry_nombre
+                    .get()
+                    .strip()
+                    or "Expresión regular"
+                ),
+                expresion=expresion
+            )
+
+            procesar_expresion_regular(
+                regex.expresion
+            )
+
+            resultado = (
+                validar_cadena_con_regex(
+                    regex.expresion,
+                    cadena
+                )
+            )
+
+            detalle = (
+                formatear_resultado_afn(
+                    resultado["detalle"]
+                )
+            )
+
+            texto = (
+                f"Expresión regular: "
+                f"{resultado['expresion']}\n"
+                f"Cadena evaluada: "
+                f"{cadena if cadena else 'ε'}\n\n"
+                f"{detalle}"
+            )
+
+            self.mostrar_validacion(
+                texto
+            )
+
+            if resultado["aceptada"]:
+
+                self.lbl_resultado_cadena.configure(
+                    text="CADENA ACEPTADA"
+                )
+
+                estado = (
+                    "Cadena aceptada por la regex"
+                )
+
+            else:
+
+                self.lbl_resultado_cadena.configure(
+                    text="CADENA RECHAZADA"
+                )
+
+                estado = (
+                    "Cadena rechazada por la regex"
+                )
+
+            self.ventana_principal.lbl_estado.configure(
+                text=(
+                    f"Estado: {estado}"
+                )
+            )
+
+        except ValueError as error:
+
+            self.lbl_resultado_cadena.configure(
+                text="NO FUE POSIBLE VALIDAR"
+            )
+
+            self.limpiar_texto_validacion()
+
+            messagebox.showerror(
+                "Validación inválida",
+                str(error)
+            )
+
+    # =========================================================
+    # MOSTRAR ANÁLISIS
     # =========================================================
 
     def mostrar_resultado(
@@ -491,7 +797,34 @@ class ExpresionesRegularesFrame(
         )
 
     # =========================================================
-    # LIMPIAR RESULTADO
+    # MOSTRAR VALIDACIÓN
+    # =========================================================
+
+    def mostrar_validacion(
+        self,
+        texto
+    ):
+
+        self.txt_validacion.configure(
+            state="normal"
+        )
+
+        self.txt_validacion.delete(
+            "1.0",
+            "end"
+        )
+
+        self.txt_validacion.insert(
+            "end",
+            texto
+        )
+
+        self.txt_validacion.configure(
+            state="disabled"
+        )
+
+    # =========================================================
+    # LIMPIAR ANÁLISIS
     # =========================================================
 
     def limpiar_resultado(self):
@@ -508,6 +841,44 @@ class ExpresionesRegularesFrame(
         self.txt_resultado.configure(
             state="disabled"
         )
+
+    # =========================================================
+    # LIMPIAR TEXTO VALIDACIÓN
+    # =========================================================
+
+    def limpiar_texto_validacion(self):
+
+        self.txt_validacion.configure(
+            state="normal"
+        )
+
+        self.txt_validacion.delete(
+            "1.0",
+            "end"
+        )
+
+        self.txt_validacion.configure(
+            state="disabled"
+        )
+
+    # =========================================================
+    # LIMPIAR VALIDACIÓN
+    # =========================================================
+
+    def limpiar_validacion(self):
+
+        self.entry_cadena.delete(
+            0,
+            "end"
+        )
+
+        self.lbl_resultado_cadena.configure(
+            text=(
+                "Ingrese una cadena para validarla."
+            )
+        )
+
+        self.limpiar_texto_validacion()
 
     # =========================================================
     # LIMPIAR TODO
@@ -537,5 +908,7 @@ class ExpresionesRegularesFrame(
         )
 
         self.limpiar_resultado()
+
+        self.limpiar_validacion()
 
         self.entry_regex.focus()
