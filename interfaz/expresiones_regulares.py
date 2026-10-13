@@ -19,10 +19,6 @@ from algoritmos.simulador import (
     formatear_resultado_afn
 )
 
-from utilidades.logs_validacion import (
-    registrar_validacion
-)
-
 
 class ExpresionesRegularesFrame(
     ctk.CTkScrollableFrame
@@ -999,12 +995,6 @@ class ExpresionesRegularesFrame(
                     regex.expresion,
                     cadena
                 )
-            )
-
-            registrar_validacion(
-                resultado["expresion"],
-                cadena,
-                resultado["aceptada"]
             )
 
             detalle = (
