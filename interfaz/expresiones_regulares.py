@@ -19,6 +19,12 @@ from algoritmos.simulador import (
     formatear_resultado_afn
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
 
 class ExpresionesRegularesFrame(
     ctk.CTkScrollableFrame
@@ -156,10 +162,6 @@ class ExpresionesRegularesFrame(
             pady=(18, 15)
         )
 
-        # -----------------------------------------------------
-        # NOMBRE
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_formulario,
             text="Nombre:",
@@ -190,10 +192,6 @@ class ExpresionesRegularesFrame(
             pady=10,
             sticky="ew"
         )
-
-        # -----------------------------------------------------
-        # REGEX
-        # -----------------------------------------------------
 
         ctk.CTkLabel(
             self.frame_formulario,
@@ -230,10 +228,6 @@ class ExpresionesRegularesFrame(
             lambda event: self.analizar()
         )
 
-        # -----------------------------------------------------
-        # ANALIZAR
-        # -----------------------------------------------------
-
         self.btn_analizar = (
             ctk.CTkButton(
                 self.frame_formulario,
@@ -251,10 +245,6 @@ class ExpresionesRegularesFrame(
             pady=10
         )
 
-        # -----------------------------------------------------
-        # LIMPIAR
-        # -----------------------------------------------------
-
         self.btn_limpiar = (
             ctk.CTkButton(
                 self.frame_formulario,
@@ -271,10 +261,6 @@ class ExpresionesRegularesFrame(
             padx=(10, 20),
             pady=(5, 18)
         )
-
-        # -----------------------------------------------------
-        # EJEMPLOS
-        # -----------------------------------------------------
 
         ctk.CTkLabel(
             self.frame_formulario,
@@ -510,7 +496,10 @@ class ExpresionesRegularesFrame(
 
         ctk.CTkLabel(
             self.frame_validacion,
-            text="Validar cadena con la expresión regular",
+            text=(
+                "Validar cadena con la "
+                "expresión regular"
+            ),
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -522,10 +511,6 @@ class ExpresionesRegularesFrame(
             padx=20,
             pady=(18, 10)
         )
-
-        # -----------------------------------------------------
-        # CADENA
-        # -----------------------------------------------------
 
         ctk.CTkLabel(
             self.frame_validacion,
@@ -561,10 +546,6 @@ class ExpresionesRegularesFrame(
             lambda event: self.validar_cadena()
         )
 
-        # -----------------------------------------------------
-        # VALIDAR
-        # -----------------------------------------------------
-
         self.btn_validar_cadena = ctk.CTkButton(
             self.frame_validacion,
             text="Validar cadena",
@@ -579,10 +560,6 @@ class ExpresionesRegularesFrame(
             padx=10,
             pady=10
         )
-
-        # -----------------------------------------------------
-        # LIMPIAR
-        # -----------------------------------------------------
 
         self.btn_limpiar_cadena = ctk.CTkButton(
             self.frame_validacion,
@@ -602,8 +579,8 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_validacion,
             text=(
-                "Puede dejar la cadena vacía para "
-                "evaluar ε."
+                "Puede dejar la cadena vacía "
+                "para evaluar ε."
             ),
             font=ctk.CTkFont(
                 size=12
@@ -752,6 +729,14 @@ class ExpresionesRegularesFrame(
                 )
             )
 
+            registrar_info(
+                "REGEX",
+                (
+                    "Expresión regular analizada "
+                    f"correctamente: {regex.expresion}"
+                )
+            )
+
         except ValueError as error:
 
             self.regex_actual = None
@@ -780,6 +765,14 @@ class ExpresionesRegularesFrame(
             self.limpiar_resultado()
 
             self.limpiar_validacion()
+
+            registrar_warning(
+                "REGEX",
+                (
+                    "Expresión regular inválida: "
+                    f"{error}"
+                )
+            )
 
             messagebox.showerror(
                 "Expresión regular inválida",
@@ -824,11 +817,6 @@ class ExpresionesRegularesFrame(
                     "Presione Analizar nuevamente "
                     "antes de generar el AFN."
                 )
-
-            # -------------------------------------------------
-            # Si existe otro autómata cargado preguntamos
-            # antes de reemplazarlo.
-            # -------------------------------------------------
 
             if (
                 self.ventana_principal
@@ -885,11 +873,6 @@ class ExpresionesRegularesFrame(
 
             self.afn_generado = afn
 
-            # -------------------------------------------------
-            # Convertimos el AFN generado en el autómata
-            # actual de toda la aplicación.
-            # -------------------------------------------------
-
             self.ventana_principal.establecer_automata(
                 afn,
                 "AFN"
@@ -916,6 +899,15 @@ class ExpresionesRegularesFrame(
                 state="normal"
             )
 
+            registrar_info(
+                "AUTOMATA",
+                (
+                    "AFN generado correctamente "
+                    "mediante Thompson desde regex: "
+                    f"{expresion}"
+                )
+            )
+
             messagebox.showinfo(
                 "AFN generado",
                 (
@@ -934,12 +926,28 @@ class ExpresionesRegularesFrame(
 
         except ValueError as error:
 
+            registrar_warning(
+                "AUTOMATA",
+                (
+                    "No fue posible generar "
+                    f"el AFN: {error}"
+                )
+            )
+
             messagebox.showerror(
                 "No se pudo generar el AFN",
                 str(error)
             )
 
         except Exception as error:
+
+            registrar_error(
+                "AUTOMATA",
+                (
+                    "Error inesperado al generar "
+                    f"el AFN: {error}"
+                )
+            )
 
             messagebox.showerror(
                 "Error al generar AFN",
@@ -1015,6 +1023,12 @@ class ExpresionesRegularesFrame(
                 texto
             )
 
+            cadena_log = (
+                cadena
+                if cadena
+                else "ε"
+            )
+
             if resultado["aceptada"]:
 
                 self.lbl_resultado_cadena.configure(
@@ -1023,6 +1037,10 @@ class ExpresionesRegularesFrame(
 
                 estado = (
                     "Cadena aceptada por la regex"
+                )
+
+                resultado_log = (
+                    "ACEPTADA"
                 )
 
             else:
@@ -1034,6 +1052,19 @@ class ExpresionesRegularesFrame(
                 estado = (
                     "Cadena rechazada por la regex"
                 )
+
+                resultado_log = (
+                    "RECHAZADA"
+                )
+
+            registrar_info(
+                "REGEX",
+                (
+                    f"Cadena {cadena_log} "
+                    f"{resultado_log} por la regex "
+                    f"{regex.expresion}"
+                )
+            )
 
             self.ventana_principal.lbl_estado.configure(
                 text=(
@@ -1048,6 +1079,14 @@ class ExpresionesRegularesFrame(
             )
 
             self.limpiar_texto_validacion()
+
+            registrar_warning(
+                "REGEX",
+                (
+                    "No fue posible validar "
+                    f"la cadena: {error}"
+                )
+            )
 
             messagebox.showerror(
                 "Validación inválida",

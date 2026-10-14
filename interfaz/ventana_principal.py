@@ -52,6 +52,13 @@ from interfaz.expresiones_regulares import (
 
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
+
 class VentanaPrincipal(ctk.CTk):
 
     def __init__(self):
@@ -365,6 +372,37 @@ class VentanaPrincipal(ctk.CTk):
             fill="x"
 
         )
+
+
+        # -----------------------------------------------------
+
+        # VALIDACIÓN DE LOGS
+
+        # -----------------------------------------------------
+
+        self.btn_validacion_logs = ctk.CTkButton(
+
+            self.frame_botones_menu,
+
+            text="Validación de logs",
+
+            height=40,
+
+            command=self.mostrar_validacion_logs
+
+        )
+
+        self.btn_validacion_logs.pack(
+
+            padx=8,
+
+            pady=4,
+
+            fill="x"
+
+        )
+
+
 
         # -----------------------------------------------------
 
@@ -1622,6 +1660,37 @@ class VentanaPrincipal(ctk.CTk):
 
         )
 
+
+
+
+    # =========================================================
+
+    # VALIDACIÓN DE LOGS
+
+    # =========================================================
+
+    def mostrar_validacion_logs(self):
+
+        self.limpiar_contenido()
+
+        validacion_logs = ValidacionLogsFrame(
+
+            self.frame_contenido,
+
+            self
+
+        )
+
+        validacion_logs.grid(
+
+            row=0,
+
+            column=0,
+
+            sticky="nsew"
+
+        )
+
     # =========================================================
 
     # SIMULAR CADENA
@@ -2016,6 +2085,11 @@ class VentanaPrincipal(ctk.CTk):
 
         if self.automata_actual is None:
 
+            registrar_warning(
+                    "ARCHIVO",
+                    "Se intentó guardar sin un autómata cargado"
+                )
+
             messagebox.showwarning(
 
                 "Sin autómata",
@@ -2085,7 +2159,14 @@ class VentanaPrincipal(ctk.CTk):
                 ruta
 
             )
-
+            registrar_info(
+                "ARCHIVO",
+                (
+                    "Autómata guardado correctamente: "
+                    f"{ruta_final}"
+                )
+            )
+    
             self.lbl_estado.configure(
 
                 text=(
@@ -2119,7 +2200,14 @@ class VentanaPrincipal(ctk.CTk):
             )
 
         except Exception as error:
-
+            
+            registrar_error(
+                "ARCHIVO",
+                (
+                    "No fue posible guardar "
+                    f"el autómata: {error}"
+                )
+            )
             messagebox.showerror(
 
                 "Error al guardar",
@@ -2219,6 +2307,14 @@ class VentanaPrincipal(ctk.CTk):
                 ruta
 
             )
+            registrar_info(
+                "ARCHIVO",
+                (
+                    f"Autómata {tipo} cargado "
+                    f"correctamente desde: {ruta}"
+                )
+            )
+        
 
             self.establecer_automata(
 
@@ -2248,6 +2344,15 @@ class VentanaPrincipal(ctk.CTk):
 
         except Exception as error:
 
+            registrar_error(
+    "ARCHIVO",
+    (
+        "No fue posible abrir "
+        f"el autómata: {error}"
+    )
+)
+            
+            
             messagebox.showerror(
 
                 "Error al abrir",
