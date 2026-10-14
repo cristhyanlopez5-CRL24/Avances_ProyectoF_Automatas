@@ -8,6 +8,11 @@ from algoritmos.conversion import (
     formatear_conversion
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
 
 class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
@@ -596,13 +601,21 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             state="disabled"
         )
 
-    # =========================================================
+       # =========================================================
     # CONVERTIR
     # =========================================================
 
     def convertir(self):
 
         if self.automata is None:
+
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó convertir un AFN "
+                    "sin un autómata cargado"
+                )
+            )
 
             messagebox.showwarning(
                 "Sin autómata",
@@ -612,6 +625,14 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             return
 
         if self.tipo != "AFN":
+
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó realizar una conversión "
+                    f"AFN → AFD utilizando un {self.tipo}"
+                )
+            )
 
             messagebox.showwarning(
                 "Tipo incorrecto",
@@ -725,7 +746,25 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                 )
             )
 
+            registrar_info(
+                "CONVERSION",
+                (
+                    "Conversión AFN → AFD completada "
+                    f"correctamente para {self.automata.nombre}. "
+                    f"Estados AFN: {cantidad_afn}. "
+                    f"Estados AFD: {cantidad_afd}"
+                )
+            )
+
         except Exception as error:
+
+            registrar_error(
+                "CONVERSION",
+                (
+                    "No fue posible convertir "
+                    f"el AFN a AFD: {error}"
+                )
+            )
 
             messagebox.showerror(
                 "Error de conversión",
@@ -887,13 +926,21 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             lineas
         )
 
-    # =========================================================
+       # =========================================================
     # USAR AFD CONVERTIDO
     # =========================================================
 
     def usar_afd_convertido(self):
 
         if self.afd_convertido is None:
+
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó usar un AFD convertido "
+                    "sin realizar primero la conversión"
+                )
+            )
 
             messagebox.showwarning(
                 "Sin conversión",
@@ -918,11 +965,21 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         )
 
         if not respuesta:
+
             return
 
         self.ventana_principal.establecer_automata(
             self.afd_convertido,
             "AFD"
+        )
+
+        registrar_info(
+            "CONVERSION",
+            (
+                "AFD convertido establecido "
+                "como autómata actual: "
+                f"{self.afd_convertido.nombre}"
+            )
         )
 
         messagebox.showinfo(

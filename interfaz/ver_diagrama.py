@@ -10,6 +10,12 @@ from utilidades.graficador import (
     generar_diagrama
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
 
 class VerDiagramaFrame(ctk.CTkFrame):
 
@@ -36,16 +42,9 @@ class VerDiagramaFrame(ctk.CTkFrame):
             ventana_principal.tipo_automata_actual
         )
 
-        # Mantener referencia de la imagen.
-        # Es importante para que Tkinter
-        # no la elimine de memoria.
         self.imagen_ctk = None
 
         self.ruta_diagrama = None
-
-        # =====================================================
-        # CONFIGURACIÓN
-        # =====================================================
 
         self.grid_columnconfigure(
             0,
@@ -57,10 +56,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
             weight=1
         )
 
-        # =====================================================
-        # INTERFAZ
-        # =====================================================
-
         self.crear_encabezado()
 
         self.crear_informacion()
@@ -69,7 +64,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
         self.crear_area_diagrama()
 
-        # Generar automáticamente
         if self.automata is not None:
 
             self.generar_y_mostrar_diagrama()
@@ -160,10 +154,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
             return
 
-        # -----------------------------------------------------
-        # TIPO
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_info,
             text="Tipo:",
@@ -189,10 +179,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
             sticky="w"
         )
 
-        # -----------------------------------------------------
-        # NOMBRE
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_info,
             text="Autómata:",
@@ -217,10 +203,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
             pady=7,
             sticky="w"
         )
-
-        # -----------------------------------------------------
-        # ESTADOS
-        # -----------------------------------------------------
 
         estados = (
             "{"
@@ -257,10 +239,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
             sticky="w"
         )
 
-        # -----------------------------------------------------
-        # TRANSICIONES
-        # -----------------------------------------------------
-
         cantidad = sum(
             len(destinos)
             for destinos
@@ -283,7 +261,9 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=str(cantidad)
+            text=str(
+                cantidad
+            )
         ).grid(
             row=3,
             column=1,
@@ -424,6 +404,14 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
         if self.automata is None:
 
+            registrar_warning(
+                "DIAGRAMA",
+                (
+                    "Se intentó generar un diagrama "
+                    "sin un autómata cargado"
+                )
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -436,19 +424,11 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
         try:
 
-            # -------------------------------------------------
-            # RUTA
-            # -------------------------------------------------
-
             ruta_base = os.path.join(
                 "recursos",
                 "diagramas",
                 "automata_actual"
             )
-
-            # -------------------------------------------------
-            # GENERAR PNG
-            # -------------------------------------------------
 
             self.ruta_diagrama = generar_diagrama(
                 self.automata,
@@ -456,10 +436,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 formato="png",
                 abrir=False
             )
-
-            # -------------------------------------------------
-            # CARGAR IMAGEN
-            # -------------------------------------------------
 
             with Image.open(
                 self.ruta_diagrama
@@ -470,10 +446,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
                     .convert("RGBA")
                     .copy()
                 )
-
-            # -------------------------------------------------
-            # CALCULAR TAMAÑO
-            # -------------------------------------------------
 
             ancho_original = imagen.width
             alto_original = imagen.height
@@ -513,10 +485,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 )
             )
 
-            # -------------------------------------------------
-            # CREAR IMAGEN DE CUSTOMTKINTER
-            # -------------------------------------------------
-
             self.imagen_ctk = ctk.CTkImage(
                 light_image=imagen,
                 dark_image=imagen,
@@ -525,10 +493,6 @@ class VerDiagramaFrame(ctk.CTkFrame):
                     alto_final
                 )
             )
-
-            # -------------------------------------------------
-            # MOSTRAR
-            # -------------------------------------------------
 
             self.lbl_diagrama.configure(
                 image=self.imagen_ctk,
@@ -549,7 +513,25 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 )
             )
 
+            registrar_info(
+                "DIAGRAMA",
+                (
+                    f"Diagrama generado correctamente "
+                    f"para {self.tipo} "
+                    f"{self.automata.nombre}"
+                )
+            )
+
         except Exception as error:
+
+            registrar_error(
+                "DIAGRAMA",
+                (
+                    "No fue posible generar el "
+                    f"diagrama de {self.automata.nombre}: "
+                    f"{error}"
+                )
+            )
 
             messagebox.showerror(
                 "Error al generar diagrama",
