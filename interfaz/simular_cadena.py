@@ -13,6 +13,12 @@ from utilidades.validaciones import (
     validar_cadena
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
 
 class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
@@ -564,13 +570,21 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             state="disabled"
         )
 
-    # =========================================================
+       # =========================================================
     # SIMULAR
     # =========================================================
 
     def simular(self):
 
         if self.automata is None:
+
+            registrar_warning(
+                "SIMULACION",
+                (
+                    "Se intentó simular una cadena "
+                    "sin un autómata cargado"
+                )
+            )
 
             messagebox.showwarning(
                 "Sin autómata",
@@ -634,16 +648,40 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                 resultado["aceptada"]
             )
 
+            cadena_log = (
+                cadena
+                if cadena
+                else "ε"
+            )
+
             if resultado["aceptada"]:
 
                 estado_texto = (
                     "Cadena aceptada"
                 )
 
+                registrar_info(
+                    "SIMULACION",
+                    (
+                        f"Cadena {cadena_log} ACEPTADA "
+                        f"por {self.tipo} "
+                        f"{self.automata.nombre}"
+                    )
+                )
+
             else:
 
                 estado_texto = (
                     "Cadena rechazada"
+                )
+
+                registrar_info(
+                    "SIMULACION",
+                    (
+                        f"Cadena {cadena_log} RECHAZADA "
+                        f"por {self.tipo} "
+                        f"{self.automata.nombre}"
+                    )
                 )
 
             self.ventana_principal.lbl_estado.configure(
@@ -656,9 +694,36 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         except ValueError as error:
 
+            registrar_warning(
+                "SIMULACION",
+                (
+                    "No fue posible simular "
+                    f"la cadena: {error}"
+                )
+            )
+
             messagebox.showerror(
                 "Cadena inválida",
                 str(error)
+            )
+
+        except Exception as error:
+
+            registrar_error(
+                "SIMULACION",
+                (
+                    "Error inesperado durante "
+                    f"la simulación: {error}"
+                )
+            )
+
+            messagebox.showerror(
+                "Error de simulación",
+                (
+                    "Ocurrió un error inesperado "
+                    "al simular la cadena.\n\n"
+                    f"Detalle: {error}"
+                )
             )
 
     # =========================================================

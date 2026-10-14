@@ -8,6 +8,12 @@ from algoritmos.minimizacion import (
     formatear_minimizacion
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
 
 class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
@@ -603,13 +609,21 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             state="disabled"
         )
 
-    # =========================================================
+        # =========================================================
     # MINIMIZAR
     # =========================================================
 
     def minimizar(self):
 
         if self.automata is None:
+
+            registrar_warning(
+                "MINIMIZACION",
+                (
+                    "Se intentó minimizar un AFD "
+                    "sin un autómata cargado"
+                )
+            )
 
             messagebox.showwarning(
                 "Sin autómata",
@@ -622,6 +636,14 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             return
 
         if self.tipo != "AFD":
+
+            registrar_warning(
+                "MINIMIZACION",
+                (
+                    "Se intentó minimizar un autómata "
+                    f"de tipo {self.tipo}"
+                )
+            )
 
             messagebox.showwarning(
                 "Tipo incorrecto",
@@ -668,7 +690,6 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 self.afd_minimo
             )
 
-            # Agregamos una comparación
             texto_completo = (
                 "=" * 60
                 + "\n"
@@ -744,7 +765,26 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 )
             )
 
+            registrar_info(
+                "MINIMIZACION",
+                (
+                    "Minimización completada correctamente "
+                    f"para {self.automata.nombre}. "
+                    f"Estados originales: {cantidad_original}. "
+                    f"Estados mínimos: {cantidad_minima}. "
+                    f"Estados eliminados: {eliminados}"
+                )
+            )
+
         except Exception as error:
+
+            registrar_error(
+                "MINIMIZACION",
+                (
+                    "No fue posible minimizar "
+                    f"el AFD: {error}"
+                )
+            )
 
             messagebox.showerror(
                 "Error de minimización",
@@ -755,13 +795,21 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 )
             )
 
-    # =========================================================
+        # =========================================================
     # USAR AFD MÍNIMO
     # =========================================================
 
     def usar_afd_minimo(self):
 
         if self.afd_minimo is None:
+
+            registrar_warning(
+                "MINIMIZACION",
+                (
+                    "Se intentó usar un AFD mínimo "
+                    "sin realizar primero la minimización"
+                )
+            )
 
             messagebox.showwarning(
                 "Sin minimización",
@@ -784,6 +832,7 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         )
 
         if not respuesta:
+
             return
 
         self.ventana_principal.establecer_automata(
@@ -792,6 +841,15 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         )
 
         self.automata = self.afd_minimo
+
+        registrar_info(
+            "MINIMIZACION",
+            (
+                "AFD mínimo establecido "
+                "como autómata actual: "
+                f"{self.afd_minimo.nombre}"
+            )
+        )
 
         self.lbl_estado_minimizacion.configure(
             text=(

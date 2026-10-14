@@ -376,36 +376,6 @@ class VentanaPrincipal(ctk.CTk):
 
         # -----------------------------------------------------
 
-        # VALIDACIÓN DE LOGS
-
-        # -----------------------------------------------------
-
-        self.btn_validacion_logs = ctk.CTkButton(
-
-            self.frame_botones_menu,
-
-            text="Validación de logs",
-
-            height=40,
-
-            command=self.mostrar_validacion_logs
-
-        )
-
-        self.btn_validacion_logs.pack(
-
-            padx=8,
-
-            pady=4,
-
-            fill="x"
-
-        )
-
-
-
-        # -----------------------------------------------------
-
         # ABRIR AUTÓMATA
 
         # -----------------------------------------------------
@@ -1660,36 +1630,6 @@ class VentanaPrincipal(ctk.CTk):
 
         )
 
-
-
-
-    # =========================================================
-
-    # VALIDACIÓN DE LOGS
-
-    # =========================================================
-
-    def mostrar_validacion_logs(self):
-
-        self.limpiar_contenido()
-
-        validacion_logs = ValidacionLogsFrame(
-
-            self.frame_contenido,
-
-            self
-
-        )
-
-        validacion_logs.grid(
-
-            row=0,
-
-            column=0,
-
-            sticky="nsew"
-
-        )
 
     # =========================================================
 
