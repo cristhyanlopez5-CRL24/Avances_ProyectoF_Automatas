@@ -1895,6 +1895,11 @@ class VerDiagramaFrame(ctk.CTkFrame):
             or self.automata is None
         ):
 
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un diagrama para visualizar.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin diagrama",
                 (
@@ -1917,6 +1922,15 @@ class VerDiagramaFrame(ctk.CTkFrame):
 
                 self.ventana_ampliada.focus()
 
+                self.ventana_principal.actualizar_barra_estado(
+                    (
+                        f"Estado: {self.tipo} - "
+                        f"{self.automata.nombre} | "
+                        "Diagrama abierto en ventana"
+                    ),
+                    "exito"
+                )
+
                 return
 
         except Exception:
@@ -1930,6 +1944,15 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 self.automata,
                 self.alias_estados
             )
+        )
+
+        self.ventana_principal.actualizar_barra_estado(
+            (
+                f"Estado: {self.tipo} - "
+                f"{self.automata.nombre} | "
+                "Diagrama abierto en ventana"
+            ),
+            "exito"
         )
 
         registrar_info(
@@ -1956,6 +1979,14 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 )
             )
 
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: No hay un autómata "
+                    "para visualizar."
+                ),
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -1971,6 +2002,15 @@ class VerDiagramaFrame(ctk.CTkFrame):
             self.lbl_estado.configure(
                 text="Generando diagrama...",
                 text_color=TEXTO_SUAVE
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    f"Estado: {self.tipo} - "
+                    f"{self.automata.nombre} | "
+                    "Generando diagrama..."
+                ),
+                "normal"
             )
 
             self.preparar_alias_estados()
@@ -2033,12 +2073,13 @@ class VerDiagramaFrame(ctk.CTkFrame):
                 text_color=COLOR_EXITO
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: {self.tipo} - "
                     f"{self.automata.nombre} | "
-                    f"Diagrama generado"
-                )
+                    "Diagrama generado"
+                ),
+                "exito"
             )
 
             registrar_info(
@@ -2058,6 +2099,11 @@ class VerDiagramaFrame(ctk.CTkFrame):
                     "el diagrama."
                 ),
                 text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Error al generar el diagrama.",
+                "error"
             )
 
             registrar_error(

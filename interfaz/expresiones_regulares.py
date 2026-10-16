@@ -38,6 +38,7 @@ from utilidades.tema import (
     COLOR_BORDE,
     COLOR_EXITO,
     COLOR_ADVERTENCIA,
+    TEXTO_DESHABILITADO,
     COLOR_ERROR
 )
 
@@ -522,10 +523,7 @@ class ExpresionesRegularesFrame(
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            text_color_disabled=(
-                "#969696",
-                "#A8A8A8"
-            )
+            text_color_disabled=TEXTO_DESHABILITADO
         )
 
         self.btn_ver_afn.grid(
@@ -810,12 +808,13 @@ class ExpresionesRegularesFrame(
                 state="disabled"
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
-                    "Estado: Expresión regular "
-                    "analizada correctamente"
-                )
-            )
+            self.ventana_principal.actualizar_barra_estado(
+            (
+            "Estado: Expresión regular "
+            "analizada correctamente"
+            ),
+            "exito"
+        )
 
             registrar_info(
                 "REGEX",
@@ -863,6 +862,11 @@ class ExpresionesRegularesFrame(
                     f"{error}"
                 )
             )
+
+            self.ventana_principal.actualizar_barra_estado(
+            "Estado: Expresión regular inválida.",
+            "advertencia"
+        )
 
             messagebox.showerror(
                 "Expresión regular inválida",
@@ -1017,6 +1021,11 @@ class ExpresionesRegularesFrame(
 
         except ValueError as error:
 
+            self.ventana_principal.actualizar_barra_estado(
+            "Estado: No fue posible generar el AFN.",
+            "advertencia"
+        )
+
             self.lbl_generacion.configure(
                 text=(
                     "No fue posible generar el AFN."
@@ -1038,6 +1047,11 @@ class ExpresionesRegularesFrame(
             )
 
         except Exception as error:
+
+            self.ventana_principal.actualizar_barra_estado(
+            "Estado: Error inesperado al generar el AFN.",
+            "error"
+        )
 
             self.lbl_generacion.configure(
                 text=(
@@ -1066,6 +1080,7 @@ class ExpresionesRegularesFrame(
     # =========================================================
     # VALIDAR CADENA
     # =========================================================
+
 
     def validar_cadena(self):
 
@@ -1149,6 +1164,8 @@ class ExpresionesRegularesFrame(
                     "ACEPTADA"
                 )
 
+                tipo_barra = "exito"
+
             else:
 
                 self.lbl_resultado_cadena.configure(
@@ -1164,6 +1181,8 @@ class ExpresionesRegularesFrame(
                     "RECHAZADA"
                 )
 
+                tipo_barra = "advertencia"
+
             registrar_info(
                 "REGEX",
                 (
@@ -1173,13 +1192,17 @@ class ExpresionesRegularesFrame(
                 )
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
-                    f"Estado: {estado}"
-                )
+            self.ventana_principal.actualizar_barra_estado(
+                f"Estado: {estado}",
+                tipo_barra
             )
 
         except ValueError as error:
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No fue posible validar la cadena.",
+                "advertencia"
+            )
 
             self.lbl_resultado_cadena.configure(
                 text="NO FUE POSIBLE VALIDAR",

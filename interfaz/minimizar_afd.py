@@ -26,6 +26,7 @@ from utilidades.tema import (
     COLOR_BORDE,
     COLOR_EXITO,
     COLOR_ADVERTENCIA,
+    TEXTO_DESHABILITADO,
     COLOR_ERROR
 )
 
@@ -574,10 +575,7 @@ class MinimizarAFDFrame(
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            text_color_disabled=(
-                "#969696",
-                "#A8A8A8"
-            )
+            text_color_disabled=TEXTO_DESHABILITADO
         )
 
         self.btn_usar_minimo.grid(
@@ -708,6 +706,11 @@ class MinimizarAFDFrame(
                 )
             )
 
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un AFD cargado.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -726,6 +729,11 @@ class MinimizarAFDFrame(
                     "Se intentó minimizar un autómata "
                     f"de tipo {self.tipo}"
                 )
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: La minimización requiere un AFD.",
+                "advertencia"
             )
 
             messagebox.showwarning(
@@ -832,12 +840,13 @@ class MinimizarAFDFrame(
                 state="normal"
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: AFD - "
                     f"{self.automata.nombre} | "
-                    f"Minimización completada"
-                )
+                    "Minimización completada"
+                ),
+                "exito"
             )
 
             registrar_info(
@@ -862,6 +871,11 @@ class MinimizarAFDFrame(
                     "la minimización."
                 ),
                 text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Error durante la minimización.",
+                "error"
             )
 
             registrar_error(
