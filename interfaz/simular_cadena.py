@@ -13,8 +13,31 @@ from utilidades.validaciones import (
     validar_cadena
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
 
-class SimularCadenaFrame(ctk.CTkScrollableFrame):
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_ENTRADA,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    COLOR_ERROR
+)
+
+
+class SimularCadenaFrame(
+    ctk.CTkScrollableFrame
+):
 
     def __init__(
         self,
@@ -27,7 +50,9 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             fg_color="transparent"
         )
 
-        self.ventana_principal = ventana_principal
+        self.ventana_principal = (
+            ventana_principal
+        )
 
         self.automata = (
             ventana_principal.automata_actual
@@ -37,18 +62,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             ventana_principal.tipo_automata_actual
         )
 
-        # =====================================================
-        # CONFIGURACIÓN
-        # =====================================================
-
         self.grid_columnconfigure(
             0,
             weight=1
         )
-
-        # =====================================================
-        # CREAR INTERFAZ
-        # =====================================================
 
         self.crear_encabezado()
 
@@ -66,7 +83,8 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         lbl_titulo = ctk.CTkLabel(
             self,
-            text="Simular cadena",
+            text="SIMULAR CADENA",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=28,
                 weight="bold"
@@ -82,9 +100,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         lbl_descripcion = ctk.CTkLabel(
             self,
             text=(
-                "Ingrese una cadena para comprobar si "
-                "el autómata la acepta o la rechaza."
+                "Ingrese una cadena para comprobar "
+                "si el autómata la acepta o la rechaza."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14
             )
@@ -103,7 +122,11 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
     def crear_informacion_automata(self):
 
         self.frame_info = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_info.grid(
@@ -119,6 +142,22 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
+        ctk.CTkLabel(
+            self.frame_info,
+            text="Autómata cargado",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=20,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 10)
+        )
+
         # -----------------------------------------------------
         # SIN AUTÓMATA
         # -----------------------------------------------------
@@ -131,6 +170,7 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                     "No hay ningún autómata cargado.\n"
                     "Primero debe crear un AFD o AFN."
                 ),
+                text_color=COLOR_ADVERTENCIA,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
@@ -138,11 +178,11 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             )
 
             lbl_sin_automata.grid(
-                row=0,
+                row=1,
                 column=0,
                 columnspan=2,
                 padx=20,
-                pady=25
+                pady=(5, 25)
             )
 
             return
@@ -154,11 +194,12 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Tipo:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=0,
+            row=1,
             column=0,
             padx=20,
             pady=7,
@@ -167,9 +208,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.tipo
+            text=self.tipo,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=0,
+            row=1,
             column=1,
             padx=20,
             pady=7,
@@ -183,11 +225,12 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Autómata:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=1,
+            row=2,
             column=0,
             padx=20,
             pady=7,
@@ -196,9 +239,12 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.automata.nombre
+            text=self.automata.nombre,
+            text_color=TEXTO_NORMAL,
+            wraplength=700,
+            justify="left"
         ).grid(
-            row=1,
+            row=2,
             column=1,
             padx=20,
             pady=7,
@@ -222,11 +268,12 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Alfabeto:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
-                weight="bold"
+            weight="bold"
             )
         ).grid(
-            row=2,
+            row=3,
             column=0,
             padx=20,
             pady=7,
@@ -235,9 +282,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=alfabeto
+            text=alfabeto,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=2,
+            row=3,
             column=1,
             padx=20,
             pady=7,
@@ -251,11 +299,12 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estado inicial:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=3,
+            row=4,
             column=0,
             padx=20,
             pady=7,
@@ -264,9 +313,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.automata.estado_inicial
+            text=self.automata.estado_inicial,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=3,
+            row=4,
             column=1,
             padx=20,
             pady=7,
@@ -290,25 +340,27 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados finales:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=4,
+            row=5,
             column=0,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
         ctk.CTkLabel(
             self.frame_info,
-            text=finales
+            text=finales,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=4,
+            row=5,
             column=1,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
@@ -319,7 +371,11 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
     def crear_formulario(self):
 
         self.frame_simulacion = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_simulacion.grid(
@@ -342,8 +398,9 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         lbl_titulo = ctk.CTkLabel(
             self.frame_simulacion,
             text="Cadena a evaluar",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
-                size=18,
+                size=19,
                 weight="bold"
             )
         )
@@ -353,16 +410,17 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             column=0,
             columnspan=4,
             padx=20,
-            pady=(15, 5)
+            pady=(18, 8)
         )
 
         # -----------------------------------------------------
-        # CAMPO CADENA
+        # CADENA
         # -----------------------------------------------------
 
         lbl_cadena = ctk.CTkLabel(
             self.frame_simulacion,
             text="Cadena:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=15,
                 weight="bold"
@@ -373,31 +431,33 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             row=1,
             column=0,
             padx=(20, 10),
-            pady=20
+            pady=15
         )
 
         self.entry_cadena = ctk.CTkEntry(
             self.frame_simulacion,
             placeholder_text="Ejemplo: 00101",
-            height=42
+            height=42,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_cadena.grid(
             row=1,
             column=1,
             padx=10,
-            pady=20,
+            pady=15,
             sticky="ew"
         )
 
-        # Permitir usar Enter para simular
         self.entry_cadena.bind(
             "<Return>",
             lambda event: self.simular()
         )
 
         # -----------------------------------------------------
-        # BOTÓN SIMULAR
+        # SIMULAR
         # -----------------------------------------------------
 
         self.btn_simular = ctk.CTkButton(
@@ -405,18 +465,21 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             text="Simular",
             height=42,
             width=130,
-            command=self.simular
+            command=self.simular,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_simular.grid(
             row=1,
             column=2,
             padx=10,
-            pady=20
+            pady=15
         )
 
         # -----------------------------------------------------
-        # BOTÓN LIMPIAR
+        # LIMPIAR
         # -----------------------------------------------------
 
         self.btn_limpiar = ctk.CTkButton(
@@ -424,26 +487,30 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             text="Limpiar",
             height=42,
             width=100,
-            command=self.limpiar
+            command=self.limpiar,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_limpiar.grid(
             row=1,
             column=3,
             padx=(0, 20),
-            pady=20
+            pady=15
         )
 
         # -----------------------------------------------------
-        # NOTA SOBRE CADENA VACÍA
+        # NOTA
         # -----------------------------------------------------
 
         lbl_nota = ctk.CTkLabel(
             self.frame_simulacion,
             text=(
-                "Puede dejar el campo vacío para evaluar "
-                "la cadena ε."
+                "Puede dejar el campo vacío "
+                "para evaluar la cadena ε."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=12
             )
@@ -456,10 +523,6 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             padx=20,
             pady=(0, 15)
         )
-
-        # -----------------------------------------------------
-        # DESHABILITAR SI NO HAY AUTÓMATA
-        # -----------------------------------------------------
 
         if self.automata is None:
 
@@ -478,7 +541,11 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
     def crear_resultado(self):
 
         self.frame_resultado = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_resultado.grid(
@@ -494,13 +561,10 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
-        # -----------------------------------------------------
-        # TÍTULO
-        # -----------------------------------------------------
-
         lbl_titulo = ctk.CTkLabel(
             self.frame_resultado,
             text="Resultado de la simulación",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -514,10 +578,6 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             pady=(18, 5)
         )
 
-        # -----------------------------------------------------
-        # ACEPTADA / RECHAZADA
-        # -----------------------------------------------------
-
         self.lbl_estado_resultado = (
             ctk.CTkLabel(
                 self.frame_resultado,
@@ -525,6 +585,7 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                     "Ingrese una cadena y "
                     "presione Simular."
                 ),
+                text_color=TEXTO_SUAVE,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
@@ -539,17 +600,17 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             pady=10
         )
 
-        # -----------------------------------------------------
-        # RECORRIDO
-        # -----------------------------------------------------
-
         self.txt_resultado = ctk.CTkTextbox(
             self.frame_resultado,
             height=280,
             font=(
                 "Consolas",
                 14
-            )
+            ),
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.txt_resultado.grid(
@@ -572,6 +633,19 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
 
         if self.automata is None:
 
+            registrar_warning(
+                "SIMULACION",
+                (
+                    "Se intentó simular una cadena "
+                    "sin un autómata cargado"
+                )
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un autómata para simular.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -589,10 +663,6 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                 self.automata.alfabeto
             )
 
-            # =================================================
-            # AFD
-            # =================================================
-
             if self.tipo == "AFD":
 
                 resultado = simular_afd_detallado(
@@ -603,10 +673,6 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                 texto = formatear_resultado_afd(
                     resultado
                 )
-
-            # =================================================
-            # AFN
-            # =================================================
 
             elif self.tipo == "AFN":
 
@@ -625,13 +691,15 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                     "Tipo de autómata desconocido."
                 )
 
-            # =================================================
-            # MOSTRAR RESULTADO
-            # =================================================
-
             self.mostrar_resultado(
                 texto,
                 resultado["aceptada"]
+            )
+
+            cadena_log = (
+                cadena
+                if cadena
+                else "ε"
             )
 
             if resultado["aceptada"]:
@@ -640,25 +708,98 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
                     "Cadena aceptada"
                 )
 
+                tipo_barra = "exito"
+
+                registrar_info(
+                    "SIMULACION",
+                    (
+                        f"Cadena {cadena_log} ACEPTADA "
+                        f"por {self.tipo} "
+                        f"{self.automata.nombre}"
+                    )
+                )
+
             else:
 
                 estado_texto = (
                     "Cadena rechazada"
                 )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+                tipo_barra = "advertencia"
+
+                registrar_info(
+                    "SIMULACION",
+                    (
+                        f"Cadena {cadena_log} RECHAZADA "
+                        f"por {self.tipo} "
+                        f"{self.automata.nombre}"
+                    )
+                )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: {self.tipo} - "
                     f"{self.automata.nombre} | "
                     f"{estado_texto}"
-                )
+                ),
+                tipo_barra
             )
 
         except ValueError as error:
 
+            self.lbl_estado_resultado.configure(
+                text="CADENA INVÁLIDA",
+                text_color=COLOR_ADVERTENCIA
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Cadena inválida.",
+                "advertencia"
+            )
+
+            registrar_warning(
+                "SIMULACION",
+                (
+                    "No fue posible simular "
+                    f"la cadena: {error}"
+                )
+            )
+
             messagebox.showerror(
                 "Cadena inválida",
                 str(error)
+            )
+
+        except Exception as error:
+
+            self.lbl_estado_resultado.configure(
+                text="ERROR DE SIMULACIÓN",
+                text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Error inesperado "
+                    "durante la simulación."
+                ),
+                "error"
+            )
+
+            registrar_error(
+                "SIMULACION",
+                (
+                    "Error inesperado durante "
+                    f"la simulación: {error}"
+                )
+            )
+
+            messagebox.showerror(
+                "Error de simulación",
+                (
+                    "Ocurrió un error inesperado "
+                    "al simular la cadena.\n\n"
+                    f"Detalle: {error}"
+                )
             )
 
     # =========================================================
@@ -674,13 +815,15 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
         if aceptada:
 
             self.lbl_estado_resultado.configure(
-                text="CADENA ACEPTADA ✓"
+                text="CADENA ACEPTADA ✓",
+                text_color=COLOR_EXITO
             )
 
         else:
 
             self.lbl_estado_resultado.configure(
-                text="CADENA RECHAZADA ✗"
+                text="CADENA RECHAZADA ✗",
+                text_color=COLOR_ERROR
             )
 
         self.txt_resultado.configure(
@@ -722,7 +865,8 @@ class SimularCadenaFrame(ctk.CTkScrollableFrame):
             text=(
                 "Ingrese una cadena y "
                 "presione Simular."
-            )
+            ),
+            text_color=TEXTO_SUAVE
         )
 
         self.txt_resultado.configure(

@@ -9,22 +9,18 @@ FORMATOS_PERMITIDOS = {
     "pdf"
 }
 
+ORIENTACIONES_PERMITIDAS = {
+    "LR",
+    "RL",
+    "TB",
+    "BT"
+}
+
 
 def _agrupar_transiciones(automata):
     """
     Agrupa símbolos cuando varias transiciones
     tienen el mismo estado de origen y destino.
-
-    Ejemplo:
-
-        q0 --0--> q1
-        q0 --1--> q1
-
-    se dibujará como:
-
-        q0 --0, 1--> q1
-
-    También funciona con AFN y transiciones ε.
     """
 
     agrupadas = {}
@@ -42,6 +38,7 @@ def _agrupar_transiciones(automata):
             )
 
             if clave not in agrupadas:
+
                 agrupadas[clave] = []
 
             agrupadas[clave].append(
@@ -53,33 +50,46 @@ def _agrupar_transiciones(automata):
 
 def construir_grafo(
     automata,
-    titulo=None
+    titulo=None,
+    etiquetas_estados=None,
+    rankdir="LR"
 ):
     """
-    Construye un objeto Digraph de Graphviz
-    a partir de un AFD o AFN.
+    Construye un objeto Digraph de Graphviz.
 
-    No genera todavía ningún archivo.
+    etiquetas_estados permite mostrar alias
+    como A, B, C sin modificar los nombres
+    reales del autómata.
     """
 
     if automata is None:
+
         raise ValueError(
             "Debe proporcionar un autómata."
         )
 
     if titulo is None:
+
         titulo = automata.nombre
+
+    if etiquetas_estados is None:
+
+        etiquetas_estados = {}
+
+    rankdir = str(
+        rankdir
+    ).upper()
+
+    if rankdir not in ORIENTACIONES_PERMITIDAS:
+
+        rankdir = "LR"
 
     grafo = Digraph(
         name="Automata"
     )
 
-    # -------------------------------------------------
-    # CONFIGURACIÓN GENERAL
-    # -------------------------------------------------
-
     grafo.attr(
-        rankdir="LR",
+        rankdir=rankdir,
         label=titulo,
         labelloc="t",
         fontsize="18",
@@ -102,14 +112,7 @@ def construir_grafo(
         fontname="Segoe UI Symbol"
     )
 
-    # -------------------------------------------------
-    # NODO ESPECIAL DE INICIO
-    # -------------------------------------------------
-    #
-    # Este nodo solamente sirve para mostrar
-    # la flecha que apunta al estado inicial.
-    # -------------------------------------------------
-
+    # Nodo invisible que marca el inicio
     nodo_inicio = "__inicio_automata__"
 
     grafo.node(
@@ -119,19 +122,21 @@ def construir_grafo(
         width="0"
     )
 
-    # -------------------------------------------------
-    # ESTADOS
-    # -------------------------------------------------
-
+    # Estados
     for estado in sorted(
         automata.estados
     ):
+
+        etiqueta = etiquetas_estados.get(
+            estado,
+            estado
+        )
 
         if estado in automata.estados_finales:
 
             grafo.node(
                 estado,
-                label=estado,
+                label=etiqueta,
                 shape="doublecircle"
             )
 
@@ -139,23 +144,17 @@ def construir_grafo(
 
             grafo.node(
                 estado,
-                label=estado,
+                label=etiqueta,
                 shape="circle"
             )
 
-    # -------------------------------------------------
-    # FLECHA AL ESTADO INICIAL
-    # -------------------------------------------------
-
+    # Flecha hacia estado inicial
     grafo.edge(
         nodo_inicio,
         automata.estado_inicial
     )
 
-    # -------------------------------------------------
-    # TRANSICIONES
-    # -------------------------------------------------
-
+    # Transiciones
     transiciones_agrupadas = (
         _agrupar_transiciones(
             automata
@@ -190,21 +189,12 @@ def generar_diagrama(
     automata,
     ruta_salida,
     formato="png",
-    abrir=False
+    abrir=False,
+    etiquetas_estados=None,
+    rankdir="LR"
 ):
     """
-    Genera físicamente el diagrama del autómata.
-
-    Ejemplo:
-
-        generar_diagrama(
-            afd,
-            "recursos/diagramas/afd_ejemplo"
-        )
-
-    producirá:
-
-        recursos/diagramas/afd_ejemplo.png
+    Genera físicamente el diagrama.
     """
 
     formato = formato.lower()
@@ -222,22 +212,15 @@ def generar_diagrama(
             "Debe proporcionar una ruta de salida."
         )
 
-    # -------------------------------------------------
-    # EVITAR EXTENSIONES DUPLICADAS
-    # -------------------------------------------------
-
     extension = f".{formato}"
 
     if ruta_salida.lower().endswith(
         extension
     ):
+
         ruta_salida = ruta_salida[
             :-len(extension)
         ]
-
-    # -------------------------------------------------
-    # CREAR CARPETA SI NO EXISTE
-    # -------------------------------------------------
 
     carpeta = os.path.dirname(
         ruta_salida
@@ -250,17 +233,11 @@ def generar_diagrama(
             exist_ok=True
         )
 
-    # -------------------------------------------------
-    # CONSTRUIR GRAFO
-    # -------------------------------------------------
-
     grafo = construir_grafo(
-        automata
+        automata,
+        etiquetas_estados=etiquetas_estados,
+        rankdir=rankdir
     )
-
-    # -------------------------------------------------
-    # RENDERIZAR
-    # -------------------------------------------------
 
     ruta_generada = grafo.render(
         filename=ruta_salida,
@@ -277,8 +254,6 @@ def obtener_codigo_dot(
 ):
     """
     Devuelve el código DOT generado por Graphviz.
-
-    Resulta útil para pruebas y depuración.
     """
 
     grafo = construir_grafo(

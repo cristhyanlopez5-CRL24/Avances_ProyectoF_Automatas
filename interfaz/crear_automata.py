@@ -11,8 +11,24 @@ from utilidades.validaciones import (
     validar_transicion
 )
 
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_ENTRADA,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    COLOR_BORDE,
+    TEXTO_DESHABILITADO,
+    COLOR_EXITO
+)
 
-class CrearAutomataFrame(ctk.CTkScrollableFrame):
+
+class CrearAutomataFrame(
+    ctk.CTkScrollableFrame
+):
 
     def __init__(
         self,
@@ -30,10 +46,6 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         )
 
         self.automata = None
-
-        # =====================================================
-        # CONFIGURACIÓN
-        # =====================================================
 
         self.grid_columnconfigure(
             0,
@@ -54,7 +66,8 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
 
         lbl_titulo = ctk.CTkLabel(
             self,
-            text="Crear autómata",
+            text="CREAR AUTÓMATA",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=28,
                 weight="bold"
@@ -64,15 +77,16 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         lbl_titulo.grid(
             row=0,
             column=0,
-            pady=(15, 5)
+            pady=(20, 5)
         )
 
         lbl_descripcion = ctk.CTkLabel(
             self,
             text=(
-                "Ingrese la información básica "
-                "del AFD o AFN."
+                "Defina la estructura básica "
+                "de un AFD o AFN."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14
             )
@@ -91,13 +105,17 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
     def crear_formulario(self):
 
         self.frame_datos = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_datos.grid(
             row=2,
             column=0,
-            padx=25,
+            padx=30,
             pady=10,
             sticky="ew"
         )
@@ -107,20 +125,44 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
-        # -----------------------------------------------------
+        # =====================================================
+        # TÍTULO
+        # =====================================================
+
+        ctk.CTkLabel(
+            self.frame_datos,
+            text="Datos del autómata",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=20,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(20, 12)
+        )
+
+        # =====================================================
         # NOMBRE
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_nombre = ctk.CTkLabel(
             self.frame_datos,
-            text="Nombre:"
+            text="Nombre:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_nombre.grid(
-            row=0,
+            row=1,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
@@ -128,70 +170,109 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             self.frame_datos,
             placeholder_text=(
                 "Ejemplo: Cadenas que terminan en 01"
-            )
+            ),
+            height=40,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_nombre.grid(
-            row=0,
+            row=1,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="ew"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # TIPO
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_tipo = ctk.CTkLabel(
             self.frame_datos,
-            text="Tipo:"
+            text="Tipo:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_tipo.grid(
-            row=1,
+            row=2,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
         self.selector_tipo = (
-            ctk.CTkSegmentedButton(
-                self.frame_datos,
-                values=[
-                    "AFD",
-                    "AFN"
-                ]
-            )
+    ctk.CTkSegmentedButton(
+        self.frame_datos,
+        values=[
+            "AFD",
+            "AFN"
+        ],
+        height=38,
+        fg_color=FONDO_ENTRADA,
+
+        selected_color=BOTON_PRINCIPAL,
+        selected_hover_color=(
+            BOTON_PRINCIPAL_HOVER
+        ),
+
+        unselected_color=(
+            "#7A8194",
+            "#31577D"
+        ),
+
+        unselected_hover_color=(
+            "#646B7D",
+            "#274866"
+        ),
+
+        text_color=(
+            "#FFFFFF",
+            "#FFFFFF"
+        ),
+
+        font=ctk.CTkFont(
+            size=14,
+            weight="bold"
         )
+    )
+)
 
         self.selector_tipo.set(
             "AFD"
         )
 
         self.selector_tipo.grid(
-            row=1,
+            row=2,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ESTADOS
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_estados = ctk.CTkLabel(
             self.frame_datos,
-            text="Estados:"
+            text="Estados:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_estados.grid(
-            row=2,
+            row=3,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
@@ -201,10 +282,10 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         )
 
         frame_estados.grid(
-            row=2,
+            row=3,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="ew"
         )
 
@@ -215,9 +296,11 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
 
         self.entry_estados = ctk.CTkEntry(
             frame_estados,
-            placeholder_text=(
-                "q0,q1,q2"
-            )
+            placeholder_text="q0,q1,q2",
+            height=40,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_estados.grid(
@@ -231,8 +314,12 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             ctk.CTkButton(
                 frame_estados,
                 text="Cargar estados",
-                width=130,
-                command=self.actualizar_lista_estados
+                width=140,
+                height=40,
+                command=self.actualizar_lista_estados,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -241,50 +328,62 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             column=1
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ALFABETO
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_alfabeto = ctk.CTkLabel(
             self.frame_datos,
-            text="Alfabeto:"
+            text="Alfabeto:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_alfabeto.grid(
-            row=3,
+            row=4,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
         self.entry_alfabeto = ctk.CTkEntry(
             self.frame_datos,
-            placeholder_text="0,1"
+            placeholder_text="0,1",
+            height=40,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_alfabeto.grid(
-            row=3,
+            row=4,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="ew"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ESTADO INICIAL
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_inicial = ctk.CTkLabel(
             self.frame_datos,
-            text="Estado inicial:"
+            text="Estado inicial:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_inicial.grid(
-            row=4,
+            row=5,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
@@ -293,7 +392,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
                 self.frame_datos,
                 values=[
                     "Primero cargue los estados"
-                ]
+                ],
+                height=40,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -302,27 +408,31 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         )
 
         self.selector_inicial.grid(
-            row=4,
+            row=5,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="ew"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ESTADOS FINALES
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_finales = ctk.CTkLabel(
             self.frame_datos,
-            text="Estados finales:"
+            text="Estados finales:",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         )
 
         lbl_finales.grid(
-            row=5,
+            row=6,
             column=0,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="w"
         )
 
@@ -330,20 +440,24 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             self.frame_datos,
             placeholder_text=(
                 "q2 o q2,q3"
-            )
+            ),
+            height=40,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_finales.grid(
-            row=5,
+            row=6,
             column=1,
-            padx=15,
-            pady=12,
+            padx=20,
+            pady=10,
             sticky="ew"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # AYUDA
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_ayuda = ctk.CTkLabel(
             self.frame_datos,
@@ -351,45 +465,55 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
                 "Separe los estados y símbolos "
                 "utilizando comas."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=12
             )
         )
 
         lbl_ayuda.grid(
-            row=6,
+            row=7,
             column=1,
-            padx=15,
+            padx=20,
             pady=(0, 10),
             sticky="w"
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # CREAR
-        # -----------------------------------------------------
+        # =====================================================
 
         self.btn_crear = ctk.CTkButton(
             self.frame_datos,
             text="Crear autómata",
-            height=42,
-            command=self.crear_automata
+            width=220,
+            height=44,
+            command=self.crear_automata,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON,
+            font=ctk.CTkFont(
+                size=14,
+                weight="bold"
+            )
         )
 
         self.btn_crear.grid(
-            row=7,
+            row=8,
             column=0,
             columnspan=2,
-            padx=15,
-            pady=(15, 20)
+            padx=20,
+            pady=(15, 12)
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # RESULTADO
-        # -----------------------------------------------------
+        # =====================================================
 
         self.lbl_resultado = ctk.CTkLabel(
             self.frame_datos,
             text="",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14,
                 weight="bold"
@@ -397,11 +521,11 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         )
 
         self.lbl_resultado.grid(
-            row=8,
+            row=9,
             column=0,
             columnspan=2,
-            padx=15,
-            pady=(0, 15)
+            padx=20,
+            pady=(0, 18)
         )
 
     # =========================================================
@@ -412,14 +536,18 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
 
         self.frame_transiciones = (
             ctk.CTkFrame(
-                self
+                self,
+                fg_color=FONDO_APP,
+                border_width=1,
+                border_color=COLOR_BORDE,
+                corner_radius=12
             )
         )
 
         self.frame_transiciones.grid(
             row=3,
             column=0,
-            padx=25,
+            padx=30,
             pady=(15, 30),
             sticky="ew"
         )
@@ -429,13 +557,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # TÍTULO
-        # -----------------------------------------------------
+        # =====================================================
 
         lbl_titulo = ctk.CTkLabel(
             self.frame_transiciones,
             text="Transiciones",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=21,
                 weight="bold"
@@ -453,6 +582,10 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
                 self.frame_transiciones,
                 text=(
                     "Primero debe crear un autómata."
+                ),
+                text_color=TEXTO_SUAVE,
+                font=ctk.CTkFont(
+                    size=13
                 )
             )
         )
@@ -463,9 +596,9 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=(0, 15)
         )
 
-        # -----------------------------------------------------
-        # CONTENEDOR
-        # -----------------------------------------------------
+        # =====================================================
+        # CONTENEDOR DE SELECTORES
+        # =====================================================
 
         self.frame_selectores = (
             ctk.CTkFrame(
@@ -481,13 +614,17 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=5
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ORIGEN
-        # -----------------------------------------------------
+        # =====================================================
 
         ctk.CTkLabel(
             self.frame_selectores,
-            text="Origen"
+            text="Origen",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         ).grid(
             row=0,
             column=0,
@@ -499,7 +636,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             ctk.CTkOptionMenu(
                 self.frame_selectores,
                 values=["-"],
-                width=160
+                width=160,
+                height=38,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -510,13 +654,17 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=5
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # SÍMBOLO
-        # -----------------------------------------------------
+        # =====================================================
 
         ctk.CTkLabel(
             self.frame_selectores,
-            text="Símbolo"
+            text="Símbolo",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         ).grid(
             row=0,
             column=1,
@@ -528,7 +676,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             ctk.CTkOptionMenu(
                 self.frame_selectores,
                 values=["-"],
-                width=130
+                width=130,
+                height=38,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -539,13 +694,17 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=5
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # DESTINO
-        # -----------------------------------------------------
+        # =====================================================
 
         ctk.CTkLabel(
             self.frame_selectores,
-            text="Destino"
+            text="Destino",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                weight="bold"
+            )
         ).grid(
             row=0,
             column=2,
@@ -557,7 +716,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             ctk.CTkOptionMenu(
                 self.frame_selectores,
                 values=["-"],
-                width=160
+                width=160,
+                height=38,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -568,17 +734,22 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=5
         )
 
-        # -----------------------------------------------------
-        # BOTÓN
-        # -----------------------------------------------------
+        # =====================================================
+        # AGREGAR TRANSICIÓN
+        # =====================================================
 
         self.btn_agregar_transicion = (
             ctk.CTkButton(
                 self.frame_selectores,
                 text="Agregar transición",
-                width=160,
+                width=170,
+                height=38,
                 command=self.agregar_transicion,
-                state="disabled"
+                state="disabled",
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON,
+                text_color_disabled=TEXTO_DESHABILITADO
             )
         )
 
@@ -589,14 +760,22 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             pady=5
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # LISTA DE TRANSICIONES
-        # -----------------------------------------------------
+        # =====================================================
 
         self.txt_transiciones = (
             ctk.CTkTextbox(
                 self.frame_transiciones,
-                height=180
+                height=180,
+                fg_color=FONDO_ENTRADA,
+                text_color=TEXTO_NORMAL,
+                border_width=1,
+                border_color=COLOR_BORDE,
+                font=(
+                    "Consolas",
+                    14
+                )
             )
         )
 
@@ -613,7 +792,7 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         )
 
     # =========================================================
-    # CARGAR ESTADOS AL SELECTOR
+    # CARGAR ESTADOS
     # =========================================================
 
     def actualizar_lista_estados(self):
@@ -665,7 +844,9 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
                 texto_estados=self.entry_estados.get(),
                 texto_alfabeto=self.entry_alfabeto.get(),
                 estado_inicial=self.selector_inicial.get(),
-                texto_estados_finales=self.entry_finales.get()
+                texto_estados_finales=(
+                    self.entry_finales.get()
+                )
             )
 
             if datos["tipo"] == "AFD":
@@ -698,7 +879,6 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
 
             self.automata = automata
 
-            # Guardar en la ventana principal
             self.ventana_principal.establecer_automata(
                 automata,
                 datos["tipo"]
@@ -708,9 +888,11 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
 
             self.lbl_resultado.configure(
                 text=(
-                    f"{datos['tipo']} creado correctamente: "
+                    f"{datos['tipo']} creado "
+                    f"correctamente: "
                     f"{datos['nombre']}"
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             messagebox.showinfo(
@@ -722,6 +904,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             )
 
         except ValueError as error:
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Datos incorrectos "
+                    "para crear el autómata."
+                ),
+                "advertencia"
+            )
 
             messagebox.showerror(
                 "Datos incorrectos",
@@ -735,6 +925,7 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
     def preparar_transiciones(self):
 
         if self.automata is None:
+
             return
 
         estados = sorted(
@@ -750,7 +941,6 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             .tipo_automata_actual
         )
 
-        # AFN permite ε
         if tipo == "AFN":
 
             simbolos.append(
@@ -788,8 +978,10 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         self.lbl_info_transiciones.configure(
             text=(
                 f"Agregando transiciones al "
-                f"{tipo}: {self.automata.nombre}"
-            )
+                f"{tipo}: "
+                f"{self.automata.nombre}"
+            ),
+            text_color=TEXTO_NORMAL
         )
 
         self.actualizar_lista_transiciones()
@@ -801,6 +993,14 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
     def agregar_transicion(self):
 
         if self.automata is None:
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Debe crear un autómata "
+                    "antes de agregar transiciones."
+                ),
+                "advertencia"
+            )
 
             messagebox.showwarning(
                 "Sin autómata",
@@ -820,9 +1020,15 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             )
 
             datos = validar_transicion(
-                origen=self.selector_origen.get(),
-                simbolo=self.selector_simbolo.get(),
-                destino=self.selector_destino.get(),
+                origen=(
+                    self.selector_origen.get()
+                ),
+                simbolo=(
+                    self.selector_simbolo.get()
+                ),
+                destino=(
+                    self.selector_destino.get()
+                ),
                 estados=self.automata.estados,
                 alfabeto=self.automata.alfabeto,
                 tipo=tipo
@@ -839,18 +1045,25 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             cantidad = sum(
                 len(destinos)
                 for destinos
-                in self.automata.transiciones.values()
+                in self.automata
+                .transiciones.values()
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: {tipo} cargado - "
                     f"{self.automata.nombre} | "
                     f"{cantidad} transiciones"
-                )
+                ),
+                "exito"
             )
 
         except ValueError as error:
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Transición inválida.",
+                "advertencia"
+            )
 
             messagebox.showerror(
                 "Transición inválida",
@@ -858,7 +1071,7 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
             )
 
     # =========================================================
-    # ACTUALIZAR TEXTO DE TRANSICIONES
+    # ACTUALIZAR LISTA DE TRANSICIONES
     # =========================================================
 
     def actualizar_lista_transiciones(self):
@@ -905,5 +1118,3 @@ class CrearAutomataFrame(ctk.CTkScrollableFrame):
         self.txt_transiciones.configure(
             state="disabled"
         )
-
-        

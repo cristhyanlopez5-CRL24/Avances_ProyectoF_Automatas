@@ -25,15 +25,48 @@ from interfaz.minimizar_afd import (
     MinimizarAFDFrame
 )
 
+from interfaz.expresiones_regulares import (
+    ExpresionesRegularesFrame
+)
+
+from interfaz.validacion_logs import (
+    ValidacionLogsFrame
+)
+
 from utilidades.persistencia import (
     guardar_automata,
     cargar_automata
+)
+
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
+
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_PANEL,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    TEXTO_DESHABILITADO,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    BOTON_PELIGRO,
+    BOTON_PELIGRO_HOVER,
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    COLOR_ERROR
 )
 
 
 class VentanaPrincipal(ctk.CTk):
 
     def __init__(self):
+
         super().__init__()
 
         # =====================================================
@@ -53,10 +86,12 @@ class VentanaPrincipal(ctk.CTk):
             650
         )
 
-        # Autómata actualmente cargado
+        self.configure(
+            fg_color=FONDO_APP
+        )
+
         self.automata_actual = None
 
-        # "AFD" o "AFN"
         self.tipo_automata_actual = None
 
         # =====================================================
@@ -87,7 +122,41 @@ class VentanaPrincipal(ctk.CTk):
 
         self.mostrar_inicio()
 
+       # =========================================================
+    # BOTÓN PRINCIPAL DEL MENÚ
     # =========================================================
+
+    def crear_boton_menu(
+        self,
+        texto,
+        comando
+    ):
+
+        boton = ctk.CTkButton(
+            self.frame_botones_menu,
+            text=texto,
+            height=36,
+            command=comando,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON,
+           text_color_disabled=TEXTO_DESHABILITADO,
+            corner_radius=8,
+            font=ctk.CTkFont(
+                size=14,
+                weight="bold"
+            )
+        )
+
+        boton.pack(
+            padx=8,
+            pady=3,
+            fill="x"
+        )
+
+        return boton
+
+        # =========================================================
     # MENÚ LATERAL
     # =========================================================
 
@@ -95,8 +164,11 @@ class VentanaPrincipal(ctk.CTk):
 
         self.frame_menu = ctk.CTkFrame(
             self,
-            width=220,
-            corner_radius=0
+            width=225,
+            corner_radius=0,
+            fg_color=FONDO_PANEL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.frame_menu.grid(
@@ -109,217 +181,218 @@ class VentanaPrincipal(ctk.CTk):
             False
         )
 
-        # -----------------------------------------------------
-        # LOGO / TÍTULO
-        # -----------------------------------------------------
+        self.frame_menu.grid_columnconfigure(
+            0,
+            weight=1
+        )
+
+        self.frame_menu.grid_rowconfigure(
+            1,
+            weight=1
+        )
+
+        # =====================================================
+        # ENCABEZADO
+        # =====================================================
+
+        frame_encabezado = ctk.CTkFrame(
+            self.frame_menu,
+            fg_color="transparent"
+        )
+
+        frame_encabezado.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=10,
+            pady=(12, 5)
+        )
 
         self.lbl_titulo = ctk.CTkLabel(
-            self.frame_menu,
+            frame_encabezado,
             text="AUTÓMATAS",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
-                size=24,
+                size=25,
                 weight="bold"
             )
         )
 
         self.lbl_titulo.pack(
-            pady=(35, 5)
+            pady=(3, 1)
         )
 
         self.lbl_subtitulo = ctk.CTkLabel(
-            self.frame_menu,
+            frame_encabezado,
             text="Simulador",
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=14
             )
         )
 
         self.lbl_subtitulo.pack(
-            pady=(0, 25)
+            pady=(0, 5)
         )
 
-        # -----------------------------------------------------
-        # INICIO
-        # -----------------------------------------------------
+        # =====================================================
+        # BOTONES DEL MENÚ
+        # =====================================================
 
-        self.btn_inicio = ctk.CTkButton(
+        self.frame_botones_menu = ctk.CTkFrame(
             self.frame_menu,
-            text="Inicio",
-            height=42,
-            command=self.mostrar_inicio
+            fg_color="transparent",
+            corner_radius=0
         )
 
-        self.btn_inicio.pack(
-            padx=20,
-            pady=5,
-            fill="x"
+        self.frame_botones_menu.grid(
+            row=1,
+            column=0,
+            sticky="new",
+            padx=10,
+            pady=(3, 5)
         )
 
-        # -----------------------------------------------------
-        # NUEVO AUTÓMATA
-        # -----------------------------------------------------
-
-        self.btn_nuevo = ctk.CTkButton(
-            self.frame_menu,
-            text="Nuevo autómata",
-            height=42,
-            command=self.mostrar_crear_automata
+        self.btn_inicio = (
+            self.crear_boton_menu(
+                "Inicio",
+                self.mostrar_inicio
+            )
         )
 
-        self.btn_nuevo.pack(
-            padx=20,
-            pady=5,
-            fill="x"
+        self.btn_nuevo = (
+            self.crear_boton_menu(
+                "Nuevo autómata",
+                self.mostrar_crear_automata
+            )
         )
 
-
-
-        # -----------------------------------------------------
-        # ABRIR AUTÓMATA
-        # -----------------------------------------------------
-
-        self.btn_abrir = ctk.CTkButton(
-            self.frame_menu,
-            text="Abrir autómata",
-            height=42,
-            command=self.abrir_automata
+        self.btn_regex = (
+            self.crear_boton_menu(
+                "Expresiones regulares",
+                self.mostrar_regex
+            )
         )
 
-        self.btn_abrir.pack(
-            padx=20,
-            pady=5,
-            fill="x"
+        self.btn_abrir = (
+            self.crear_boton_menu(
+                "Abrir autómata",
+                self.abrir_automata
+            )
         )
 
-        # -----------------------------------------------------
-        # GUARDAR AUTÓMATA
-        # -----------------------------------------------------
-
-        self.btn_guardar = ctk.CTkButton(
-            self.frame_menu,
-            text="Guardar autómata",
-            height=42,
-            command=self.guardar_automata_actual
+        self.btn_guardar = (
+            self.crear_boton_menu(
+                "Guardar autómata",
+                self.guardar_automata_actual
+            )
         )
 
-        self.btn_guardar.pack(
-            padx=20,
-            pady=5,
-            fill="x"
+        self.btn_simular = (
+            self.crear_boton_menu(
+                "Simular cadena",
+                self.mostrar_simular_cadena
+            )
         )
 
-
-
-
-        # -----------------------------------------------------
-        # SIMULAR
-        # -----------------------------------------------------
-
-        self.btn_simular = ctk.CTkButton(
-            self.frame_menu,
-            text="Simular cadena",
-            height=42,
-            command=self.mostrar_simular_cadena
+        self.btn_convertir = (
+            self.crear_boton_menu(
+                "AFN → AFD",
+                self.mostrar_conversion
+            )
         )
 
-        self.btn_simular.pack(
-            padx=20,
-            pady=5,
-            fill="x"
+        self.btn_minimizar = (
+            self.crear_boton_menu(
+                "Minimizar AFD",
+                self.mostrar_minimizacion
+            )
         )
 
-        # -----------------------------------------------------
-        # CONVERTIR
-        # -----------------------------------------------------
-
-        self.btn_convertir = ctk.CTkButton(
-            self.frame_menu,
-            text="AFN → AFD",
-            height=42,
-            command=self.mostrar_conversion
+        self.btn_diagrama = (
+            self.crear_boton_menu(
+                "Ver diagrama",
+                self.mostrar_diagrama
+            )
         )
 
-        self.btn_convertir.pack(
-            padx=20,
-            pady=5,
-            fill="x"
-        )
-
-        # -----------------------------------------------------
-        # MINIMIZAR
-        # -----------------------------------------------------
-
-        self.btn_minimizar = ctk.CTkButton(
-            self.frame_menu,
-            text="Minimizar AFD",
-            height=42,
-            command=self.mostrar_minimizacion
-        )
-
-        self.btn_minimizar.pack(
-            padx=20,
-            pady=5,
-            fill="x"
-        )
-
-        # -----------------------------------------------------
-        # DIAGRAMA
-        # -----------------------------------------------------
-
-        self.btn_diagrama = ctk.CTkButton(
-            self.frame_menu,
-            text="Ver diagrama",
-            height=42,
-            command=self.mostrar_diagrama
-        )
-
-        self.btn_diagrama.pack(
-            padx=20,
-            pady=5,
-            fill="x"
-        )
-
-        # -----------------------------------------------------
+        # =====================================================
         # REINICIAR AUTÓMATA
-        # -----------------------------------------------------
+        # =====================================================
 
         self.btn_reiniciar = ctk.CTkButton(
-            self.frame_menu,
+            self.frame_botones_menu,
             text="Reiniciar autómata",
-            height=42,
+            height=36,
             command=self.reiniciar_automata,
-            fg_color="#A93226",
-            hover_color="#922B21"
+            fg_color=BOTON_PELIGRO,
+            hover_color=BOTON_PELIGRO_HOVER,
+            text_color=TEXTO_BOTON,
+            text_color_disabled=(
+                "#969696",
+                "#A8A8A8"
+            ),
+            corner_radius=8,
+            font=ctk.CTkFont(
+                size=14,
+                weight="bold"
+            )
         )
 
         self.btn_reiniciar.pack(
-            padx=20,
-            pady=(18, 5),
+            padx=8,
+            pady=(9, 3),
             fill="x"
         )
 
-        # -----------------------------------------------------
-        # APARIENCIA
-        # -----------------------------------------------------
+        # =====================================================
+        # APARIENCIA FIJA ABAJO
+        # =====================================================
+
+        self.frame_apariencia = ctk.CTkFrame(
+            self.frame_menu,
+            fg_color="transparent"
+        )
+
+        self.frame_apariencia.grid(
+            row=2,
+            column=0,
+            padx=20,
+            pady=(5, 12),
+            sticky="sew"
+        )
 
         self.lbl_apariencia = ctk.CTkLabel(
-            self.frame_menu,
-            text="Apariencia"
+            self.frame_apariencia,
+            text="Apariencia",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                size=13,
+                weight="bold"
+            )
         )
 
         self.lbl_apariencia.pack(
-            side="bottom",
-            pady=(5, 5)
+            pady=(0, 5)
         )
 
-        self.selector_apariencia = ctk.CTkOptionMenu(
-            self.frame_menu,
-            values=[
-                "Sistema",
-                "Claro",
-                "Oscuro"
-            ],
-            command=self.cambiar_apariencia
+        self.selector_apariencia = (
+            ctk.CTkOptionMenu(
+                self.frame_apariencia,
+                values=[
+                    "Sistema",
+                    "Claro",
+                    "Oscuro"
+                ],
+                command=self.cambiar_apariencia,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON,
+                height=34
+            )
         )
 
         self.selector_apariencia.set(
@@ -327,9 +400,220 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         self.selector_apariencia.pack(
-            side="bottom",
+            fill="x"
+        )
+
+        # =====================================================
+        # ENCABEZADO
+        # =====================================================
+
+        frame_encabezado = ctk.CTkFrame(
+            self.frame_menu,
+            fg_color="transparent"
+        )
+
+        frame_encabezado.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=10,
+            pady=(20, 8)
+        )
+
+        self.lbl_titulo = ctk.CTkLabel(
+            frame_encabezado,
+            text="AUTÓMATAS",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=25,
+                weight="bold"
+            )
+        )
+
+        self.lbl_titulo.pack(
+            pady=(5, 2)
+        )
+
+        self.lbl_subtitulo = ctk.CTkLabel(
+            frame_encabezado,
+            text="Simulador",
+            text_color=TEXTO_SUAVE,
+            font=ctk.CTkFont(
+                size=14
+            )
+        )
+
+        self.lbl_subtitulo.pack(
+            pady=(0, 8)
+        )
+
+        # =====================================================
+        # ÁREA DE BOTONES
+        # =====================================================
+
+        self.frame_botones_menu = ctk.CTkFrame(
+        self.frame_menu,
+        fg_color="transparent",
+        corner_radius=0
+        )
+
+        self.frame_botones_menu.grid(
+            row=1,
+            column=0,
+            sticky="nsew",
+            padx=(10, 3),
+            pady=5
+        )
+
+        self.btn_inicio = (
+            self.crear_boton_menu(
+                "Inicio",
+                self.mostrar_inicio
+            )
+        )
+
+        self.btn_nuevo = (
+            self.crear_boton_menu(
+                "Nuevo autómata",
+                self.mostrar_crear_automata
+            )
+        )
+
+        self.btn_regex = (
+            self.crear_boton_menu(
+                "Expresiones regulares",
+                self.mostrar_regex
+            )
+        )
+
+        self.btn_logs = (
+            self.crear_boton_menu(
+                "Validación de logs",
+                self.mostrar_validacion_logs
+            )
+        )
+
+        self.btn_abrir = (
+            self.crear_boton_menu(
+                "Abrir autómata",
+                self.abrir_automata
+            )
+        )
+
+        self.btn_guardar = (
+            self.crear_boton_menu(
+                "Guardar autómata",
+                self.guardar_automata_actual
+            )
+        )
+
+        self.btn_simular = (
+            self.crear_boton_menu(
+                "Simular cadena",
+                self.mostrar_simular_cadena
+            )
+        )
+
+        self.btn_convertir = (
+            self.crear_boton_menu(
+                "AFN → AFD",
+                self.mostrar_conversion
+            )
+        )
+
+        self.btn_minimizar = (
+            self.crear_boton_menu(
+                "Minimizar AFD",
+                self.mostrar_minimizacion
+            )
+        )
+
+        self.btn_diagrama = (
+            self.crear_boton_menu(
+                "Ver diagrama",
+                self.mostrar_diagrama
+            )
+        )
+
+        # =====================================================
+        # REINICIAR
+        # =====================================================
+
+        self.btn_reiniciar = ctk.CTkButton(
+            self.frame_botones_menu,
+            text="Reiniciar autómata",
+            height=40,
+            command=self.reiniciar_automata,
+            fg_color=BOTON_PELIGRO,
+            hover_color=BOTON_PELIGRO_HOVER,
+            text_color=TEXTO_BOTON,
+            corner_radius=8,
+            font=ctk.CTkFont(
+                size=14,
+                weight="bold"
+            )
+        )
+
+        self.btn_reiniciar.pack(
+            padx=8,
+            pady=(12, 4),
+            fill="x"
+        )
+
+        # =====================================================
+        # APARIENCIA
+        # =====================================================
+
+        self.frame_apariencia = ctk.CTkFrame(
+            self.frame_menu,
+            fg_color="transparent"
+        )
+
+        self.frame_apariencia.grid(
+            row=2,
+            column=0,
             padx=20,
-            pady=(0, 20),
+            pady=(5, 15),
+            sticky="ew"
+        )
+
+        self.lbl_apariencia = ctk.CTkLabel(
+            self.frame_apariencia,
+            text="Apariencia",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                size=13,
+                weight="bold"
+            )
+        )
+
+        self.lbl_apariencia.pack(
+            pady=(0, 6)
+        )
+
+        self.selector_apariencia = (
+            ctk.CTkOptionMenu(
+                self.frame_apariencia,
+                values=[
+                    "Sistema",
+                    "Claro",
+                    "Oscuro"
+                ],
+                command=self.cambiar_apariencia,
+                fg_color=BOTON_PRINCIPAL,
+                button_color=BOTON_PRINCIPAL,
+                button_hover_color=(
+                    BOTON_PRINCIPAL_HOVER
+                ),
+                text_color=TEXTO_BOTON
+            )
+        )
+
+        self.selector_apariencia.set(
+            "Sistema"
+        )
+
+        self.selector_apariencia.pack(
             fill="x"
         )
 
@@ -341,7 +625,10 @@ class VentanaPrincipal(ctk.CTk):
 
         self.frame_contenido = ctk.CTkFrame(
             self,
-            corner_radius=12
+            corner_radius=12,
+            fg_color=FONDO_PANEL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.frame_contenido.grid(
@@ -362,7 +649,7 @@ class VentanaPrincipal(ctk.CTk):
             weight=1
         )
 
-    # =========================================================
+      # =========================================================
     # BARRA DE ESTADO
     # =========================================================
 
@@ -373,7 +660,11 @@ class VentanaPrincipal(ctk.CTk):
             text=(
                 "Estado: No hay un autómata cargado."
             ),
-            anchor="w"
+            anchor="w",
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                size=13
+            )
         )
 
         self.lbl_estado.grid(
@@ -385,6 +676,33 @@ class VentanaPrincipal(ctk.CTk):
         )
 
     # =========================================================
+    # ACTUALIZAR BARRA DE ESTADO
+    # =========================================================
+
+    def actualizar_barra_estado(
+        self,
+        texto,
+        tipo="normal"
+    ):
+
+        colores = {
+            "normal": TEXTO_NORMAL,
+            "exito": COLOR_EXITO,
+            "advertencia": COLOR_ADVERTENCIA,
+            "error": COLOR_ERROR
+        }
+
+        color = colores.get(
+            tipo,
+            TEXTO_NORMAL
+        )
+
+        self.lbl_estado.configure(
+            text=texto,
+            text_color=color
+        )
+
+    # =========================================================
     # LIMPIAR CONTENIDO
     # =========================================================
 
@@ -393,6 +711,19 @@ class VentanaPrincipal(ctk.CTk):
         for widget in (
             self.frame_contenido.winfo_children()
         ):
+
+            widget.destroy()
+
+    # =========================================================
+    # LIMPIAR CONTENIDO
+    # =========================================================
+
+    def limpiar_contenido(self):
+
+        for widget in (
+            self.frame_contenido.winfo_children()
+        ):
+
             widget.destroy()
 
     # =========================================================
@@ -420,13 +751,14 @@ class VentanaPrincipal(ctk.CTk):
             weight=1
         )
 
-        # -----------------------------------------------------
+        # =====================================================
         # ENCABEZADO
-        # -----------------------------------------------------
+        # =====================================================
 
         titulo = ctk.CTkLabel(
             contenido,
             text="SIMULADOR DE AUTÓMATAS",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=32,
                 weight="bold"
@@ -445,6 +777,7 @@ class VentanaPrincipal(ctk.CTk):
                 "Construye, simula, convierte y "
                 "minimiza autómatas finitos."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=17
             )
@@ -459,9 +792,11 @@ class VentanaPrincipal(ctk.CTk):
         descripcion2 = ctk.CTkLabel(
             contenido,
             text=(
-                "Compatible con AFD, AFN y "
+                "Compatible con AFD, AFN, "
+                "expresiones regulares y "
                 "transiciones ε."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=15
             )
@@ -480,7 +815,11 @@ class VentanaPrincipal(ctk.CTk):
         if self.automata_actual is None:
 
             frame_sin_automata = ctk.CTkFrame(
-                contenido
+                contenido,
+                fg_color=FONDO_APP,
+                border_width=1,
+                border_color=COLOR_BORDE,
+                corner_radius=12
             )
 
             frame_sin_automata.grid(
@@ -494,6 +833,7 @@ class VentanaPrincipal(ctk.CTk):
             ctk.CTkLabel(
                 frame_sin_automata,
                 text="No hay un autómata cargado",
+                text_color=TEXTO_TITULO,
                 font=ctk.CTkFont(
                     size=20,
                     weight="bold"
@@ -507,6 +847,7 @@ class VentanaPrincipal(ctk.CTk):
                 text=(
                     "Cree un AFD o AFN para comenzar."
                 ),
+                text_color=TEXTO_NORMAL,
                 font=ctk.CTkFont(
                     size=14
                 )
@@ -519,7 +860,10 @@ class VentanaPrincipal(ctk.CTk):
                 text="Crear nuevo autómata",
                 width=220,
                 height=44,
-                command=self.mostrar_crear_automata
+                command=self.mostrar_crear_automata,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             ).pack(
                 pady=(15, 25)
             )
@@ -531,7 +875,11 @@ class VentanaPrincipal(ctk.CTk):
         # =====================================================
 
         frame_actual = ctk.CTkFrame(
-            contenido
+            contenido,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         frame_actual.grid(
@@ -550,6 +898,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Autómata actual",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=21,
                 weight="bold"
@@ -568,6 +917,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Tipo:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -581,7 +931,8 @@ class VentanaPrincipal(ctk.CTk):
 
         ctk.CTkLabel(
             frame_actual,
-            text=self.tipo_automata_actual
+            text=self.tipo_automata_actual,
+            text_color=TEXTO_NORMAL
         ).grid(
             row=1,
             column=1,
@@ -597,6 +948,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Nombre:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -611,6 +963,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text=self.automata_actual.nombre,
+            text_color=TEXTO_NORMAL,
             wraplength=650,
             justify="left"
         ).grid(
@@ -628,6 +981,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Estados:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -645,7 +999,8 @@ class VentanaPrincipal(ctk.CTk):
                 len(
                     self.automata_actual.estados
                 )
-            )
+            ),
+            text_color=TEXTO_NORMAL
         ).grid(
             row=3,
             column=1,
@@ -661,12 +1016,14 @@ class VentanaPrincipal(ctk.CTk):
         cantidad_transiciones = sum(
             len(destinos)
             for destinos
-            in self.automata_actual.transiciones.values()
+            in self.automata_actual
+            .transiciones.values()
         )
 
         ctk.CTkLabel(
             frame_actual,
             text="Transiciones:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -682,7 +1039,8 @@ class VentanaPrincipal(ctk.CTk):
             frame_actual,
             text=str(
                 cantidad_transiciones
-            )
+            ),
+            text_color=TEXTO_NORMAL
         ).grid(
             row=4,
             column=1,
@@ -698,6 +1056,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Estado inicial:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -711,7 +1070,8 @@ class VentanaPrincipal(ctk.CTk):
 
         ctk.CTkLabel(
             frame_actual,
-            text=self.automata_actual.estado_inicial
+            text=self.automata_actual.estado_inicial,
+            text_color=TEXTO_NORMAL
         ).grid(
             row=5,
             column=1,
@@ -728,7 +1088,8 @@ class VentanaPrincipal(ctk.CTk):
             "{"
             + ", ".join(
                 sorted(
-                    self.automata_actual.estados_finales
+                    self.automata_actual
+                    .estados_finales
                 )
             )
             + "}"
@@ -737,6 +1098,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text="Estados finales:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -751,6 +1113,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_actual,
             text=finales,
+            text_color=TEXTO_NORMAL,
             wraplength=650,
             justify="left"
         ).grid(
@@ -762,11 +1125,15 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         # =====================================================
-        # ACCESOS RÁPIDOS
+        # ACCIONES RÁPIDAS
         # =====================================================
 
         frame_acciones = ctk.CTkFrame(
-            contenido
+            contenido,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         frame_acciones.grid(
@@ -780,6 +1147,7 @@ class VentanaPrincipal(ctk.CTk):
         ctk.CTkLabel(
             frame_acciones,
             text="Acciones rápidas",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -802,7 +1170,10 @@ class VentanaPrincipal(ctk.CTk):
             text="Simular cadena",
             width=160,
             height=42,
-            command=self.mostrar_simular_cadena
+            command=self.mostrar_simular_cadena,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         ).grid(
             row=0,
             column=0,
@@ -815,7 +1186,10 @@ class VentanaPrincipal(ctk.CTk):
             text="Ver diagrama",
             width=160,
             height=42,
-            command=self.mostrar_diagrama
+            command=self.mostrar_diagrama,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         ).grid(
             row=0,
             column=1,
@@ -823,14 +1197,20 @@ class VentanaPrincipal(ctk.CTk):
             pady=5
         )
 
-        if self.tipo_automata_actual == "AFN":
+        if (
+            self.tipo_automata_actual
+            == "AFN"
+        ):
 
             ctk.CTkButton(
                 frame_botones,
                 text="Convertir a AFD",
                 width=160,
                 height=42,
-                command=self.mostrar_conversion
+                command=self.mostrar_conversion,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             ).grid(
                 row=0,
                 column=2,
@@ -838,14 +1218,20 @@ class VentanaPrincipal(ctk.CTk):
                 pady=5
             )
 
-        elif self.tipo_automata_actual == "AFD":
+        elif (
+            self.tipo_automata_actual
+            == "AFD"
+        ):
 
             ctk.CTkButton(
                 frame_botones,
                 text="Minimizar",
                 width=160,
                 height=42,
-                command=self.mostrar_minimizacion
+                command=self.mostrar_minimizacion,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             ).grid(
                 row=0,
                 column=2,
@@ -859,7 +1245,6 @@ class VentanaPrincipal(ctk.CTk):
 
     def mostrar_crear_automata(self):
 
-        # Si ya existe un autómata, advertimos
         if self.automata_actual is not None:
 
             respuesta = messagebox.askyesno(
@@ -875,6 +1260,7 @@ class VentanaPrincipal(ctk.CTk):
             )
 
             if not respuesta:
+
                 return
 
         self.limpiar_contenido()
@@ -885,6 +1271,46 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         formulario.grid(
+            row=0,
+            column=0,
+            sticky="nsew"
+        )
+
+    # =========================================================
+    # EXPRESIONES REGULARES
+    # =========================================================
+
+    def mostrar_regex(self):
+
+        self.limpiar_contenido()
+
+        regex = ExpresionesRegularesFrame(
+            self.frame_contenido,
+            self
+        )
+
+        regex.grid(
+            row=0,
+            column=0,
+            sticky="nsew"
+        )
+
+
+
+    # =========================================================
+    # VALIDACIÓN DE LOGS
+    # =========================================================
+
+    def mostrar_validacion_logs(self):
+
+        self.limpiar_contenido()
+
+        validacion = ValidacionLogsFrame(
+            self.frame_contenido,
+            self
+        )
+
+        validacion.grid(
             row=0,
             column=0,
             sticky="nsew"
@@ -910,7 +1336,7 @@ class VentanaPrincipal(ctk.CTk):
         )
 
     # =========================================================
-    # CONVERSIÓN AFN -> AFD
+    # CONVERSIÓN
     # =========================================================
 
     def mostrar_conversion(self):
@@ -967,7 +1393,7 @@ class VentanaPrincipal(ctk.CTk):
         )
 
     # =========================================================
-    # ESTABLECER AUTÓMATA ACTUAL
+    # ESTABLECER AUTÓMATA
     # =========================================================
 
     def establecer_automata(
@@ -986,23 +1412,25 @@ class VentanaPrincipal(ctk.CTk):
             in automata.transiciones.values()
         )
 
-        self.lbl_estado.configure(
-            text=(
-                f"Estado: {tipo} cargado - "
-                f"{automata.nombre} | "
-                f"{cantidad} transiciones"
-            )
+        self.actualizar_barra_estado(
+      (
+        f"Estado: {tipo} cargado - "
+        f"{automata.nombre} | "
+        f"{cantidad} transiciones"
+     ),
+         "exito"
         )
 
         self.actualizar_estado_botones()
 
     # =========================================================
-    # REINICIAR AUTÓMATA
+    # REINICIAR
     # =========================================================
 
     def reiniciar_automata(self):
 
         if self.automata_actual is None:
+
             return
 
         respuesta = messagebox.askyesno(
@@ -1018,16 +1446,16 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         if not respuesta:
+
             return
 
         self.automata_actual = None
 
         self.tipo_automata_actual = None
 
-        self.lbl_estado.configure(
-            text=(
-                "Estado: No hay un autómata cargado."
-            )
+        self.actualizar_barra_estado(
+        "Estado: No hay un autómata cargado.",
+         "normal"
         )
 
         self.actualizar_estado_botones()
@@ -1076,11 +1504,6 @@ class VentanaPrincipal(ctk.CTk):
 
             return
 
-        # -----------------------------------------------------
-        # HAY AUTÓMATA
-        # -----------------------------------------------------
-
-
         self.btn_simular.configure(
             state="normal"
         )
@@ -1097,11 +1520,10 @@ class VentanaPrincipal(ctk.CTk):
             state="normal"
         )
 
-        # -----------------------------------------------------
-        # AFN
-        # -----------------------------------------------------
-
-        if self.tipo_automata_actual == "AFN":
+        if (
+            self.tipo_automata_actual
+            == "AFN"
+        ):
 
             self.btn_convertir.configure(
                 state="normal"
@@ -1111,11 +1533,10 @@ class VentanaPrincipal(ctk.CTk):
                 state="disabled"
             )
 
-        # -----------------------------------------------------
-        # AFD
-        # -----------------------------------------------------
-
-        elif self.tipo_automata_actual == "AFD":
+        elif (
+            self.tipo_automata_actual
+            == "AFD"
+        ):
 
             self.btn_convertir.configure(
                 state="disabled"
@@ -1152,9 +1573,6 @@ class VentanaPrincipal(ctk.CTk):
                 "system"
             )
 
-
-
-
     # =========================================================
     # GUARDAR AUTÓMATA
     # =========================================================
@@ -1162,6 +1580,24 @@ class VentanaPrincipal(ctk.CTk):
     def guardar_automata_actual(self):
 
         if self.automata_actual is None:
+
+            registrar_warning(
+                "ARCHIVO",
+                (
+                    "Se intentó guardar sin "
+                    "un autómata cargado"
+                )
+            )
+
+            self.actualizar_barra_estado(
+         (
+           f"Estado: "
+           f"{self.tipo_automata_actual} - "
+           f"{self.automata_actual.nombre} | "
+           "Guardado correctamente"
+        ),
+        "exito"
+    )
 
             messagebox.showwarning(
                 "Sin autómata",
@@ -1192,8 +1628,8 @@ class VentanaPrincipal(ctk.CTk):
             )
         )
 
-        # El usuario presionó Cancelar
         if not ruta:
+
             return
 
         try:
@@ -1204,12 +1640,21 @@ class VentanaPrincipal(ctk.CTk):
                 ruta
             )
 
+            registrar_info(
+                "ARCHIVO",
+                (
+                    "Autómata guardado "
+                    "correctamente: "
+                    f"{ruta_final}"
+                )
+            )
+
             self.lbl_estado.configure(
                 text=(
                     f"Estado: "
                     f"{self.tipo_automata_actual} - "
                     f"{self.automata_actual.nombre} | "
-                    f"Guardado correctamente"
+                    "Guardado correctamente"
                 )
             )
 
@@ -1224,6 +1669,19 @@ class VentanaPrincipal(ctk.CTk):
 
         except Exception as error:
 
+            registrar_error(
+                "ARCHIVO",
+                (
+                    "No fue posible guardar "
+                    f"el autómata: {error}"
+                )
+            )
+
+            self.actualizar_barra_estado(
+            "Estado: Error al guardar el autómata.",
+            "error"
+        )
+
             messagebox.showerror(
                 "Error al guardar",
                 (
@@ -1233,17 +1691,11 @@ class VentanaPrincipal(ctk.CTk):
                 )
             )
 
-
-
     # =========================================================
     # ABRIR AUTÓMATA
     # =========================================================
 
     def abrir_automata(self):
-
-        # -----------------------------------------------------
-        # AVISO SI YA EXISTE UNO
-        # -----------------------------------------------------
 
         if self.automata_actual is not None:
 
@@ -1259,11 +1711,8 @@ class VentanaPrincipal(ctk.CTk):
             )
 
             if not respuesta:
-                return
 
-        # -----------------------------------------------------
-        # SELECCIONAR ARCHIVO
-        # -----------------------------------------------------
+                return
 
         ruta = filedialog.askopenfilename(
             title="Abrir autómata",
@@ -1280,6 +1729,7 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         if not ruta:
+
             return
 
         try:
@@ -1288,12 +1738,25 @@ class VentanaPrincipal(ctk.CTk):
                 ruta
             )
 
+            registrar_info(
+                "ARCHIVO",
+                (
+                    f"Autómata {tipo} cargado "
+                    f"correctamente desde: {ruta}"
+                )
+            )
+
             self.establecer_automata(
                 automata,
                 tipo
             )
 
             self.mostrar_inicio()
+
+            self.actualizar_barra_estado(
+            "Estado: Error al abrir el autómata.",
+            "error"
+        )
 
             messagebox.showinfo(
                 "Autómata cargado",
@@ -1306,6 +1769,14 @@ class VentanaPrincipal(ctk.CTk):
 
         except Exception as error:
 
+            registrar_error(
+                "ARCHIVO",
+                (
+                    "No fue posible abrir "
+                    f"el autómata: {error}"
+                )
+            )
+
             messagebox.showerror(
                 "Error al abrir",
                 (
@@ -1314,4 +1785,3 @@ class VentanaPrincipal(ctk.CTk):
                     f"Detalle: {error}"
                 )
             )
-

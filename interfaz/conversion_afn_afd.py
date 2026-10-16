@@ -8,8 +8,32 @@ from algoritmos.conversion import (
     formatear_conversion
 )
 
+from utilidades.registro_logs import (
+    registrar_info,
+    registrar_warning,
+    registrar_error
+)
 
-class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_ENTRADA,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    TEXTO_DESHABILITADO,
+    COLOR_ERROR
+)
+
+
+class ConversionAFNaAFDFrame(
+    ctk.CTkScrollableFrame
+):
 
     def __init__(
         self,
@@ -34,21 +58,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             ventana_principal.tipo_automata_actual
         )
 
-        # Aquí guardaremos el AFD generado
         self.afd_convertido = None
-
-        # =====================================================
-        # CONFIGURACIÓN
-        # =====================================================
 
         self.grid_columnconfigure(
             0,
             weight=1
         )
-
-        # =====================================================
-        # INTERFAZ
-        # =====================================================
 
         self.crear_encabezado()
 
@@ -66,7 +81,8 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         lbl_titulo = ctk.CTkLabel(
             self,
-            text="Conversión AFN → AFD",
+            text="CONVERSIÓN AFN → AFD",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=28,
                 weight="bold"
@@ -82,10 +98,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         lbl_descripcion = ctk.CTkLabel(
             self,
             text=(
-                "Convierte un Autómata Finito No Determinista "
-                "en un AFD equivalente mediante construcción "
+                "Convierte un Autómata Finito "
+                "No Determinista en un AFD "
+                "equivalente mediante construcción "
                 "de subconjuntos."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14
             ),
@@ -107,7 +125,11 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
     def crear_informacion_afn(self):
 
         self.frame_info = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_info.grid(
@@ -123,6 +145,22 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
+        ctk.CTkLabel(
+            self.frame_info,
+            text="AFN cargado",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=20,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 10)
+        )
+
         # -----------------------------------------------------
         # NO HAY AUTÓMATA
         # -----------------------------------------------------
@@ -135,22 +173,23 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                     "No hay ningún autómata cargado.\n"
                     "Primero debe crear un AFN."
                 ),
+                text_color=COLOR_ADVERTENCIA,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
                 )
             ).grid(
-                row=0,
+                row=1,
                 column=0,
                 columnspan=2,
                 padx=20,
-                pady=25
+                pady=(5, 25)
             )
 
             return
 
         # -----------------------------------------------------
-        # EL AUTÓMATA NO ES AFN
+        # NO ES AFN
         # -----------------------------------------------------
 
         if self.tipo != "AFN":
@@ -158,20 +197,22 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             ctk.CTkLabel(
                 self.frame_info,
                 text=(
-                    f"El autómata actual es de tipo {self.tipo}.\n"
-                    "La conversión AFN → AFD solamente puede "
-                    "realizarse sobre un AFN."
+                    f"El autómata actual es de tipo "
+                    f"{self.tipo}.\n"
+                    "La conversión AFN → AFD solamente "
+                    "puede realizarse sobre un AFN."
                 ),
+                text_color=COLOR_ADVERTENCIA,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
                 )
             ).grid(
-                row=0,
+                row=1,
                 column=0,
                 columnspan=2,
                 padx=20,
-                pady=25
+                pady=(5, 25)
             )
 
             return
@@ -183,11 +224,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Tipo:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=0,
+            row=1,
             column=0,
             padx=20,
             pady=7,
@@ -196,9 +238,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text="AFN"
+            text="AFN",
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=0,
+            row=1,
             column=1,
             padx=20,
             pady=7,
@@ -212,11 +255,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Autómata:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=1,
+            row=2,
             column=0,
             padx=20,
             pady=7,
@@ -225,9 +269,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.automata.nombre
+            text=self.automata.nombre,
+            text_color=TEXTO_NORMAL,
+            wraplength=700,
+            justify="left"
         ).grid(
-            row=1,
+            row=2,
             column=1,
             padx=20,
             pady=7,
@@ -251,11 +298,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=2,
+            row=3,
             column=0,
             padx=20,
             pady=7,
@@ -265,10 +313,11 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text=estados,
+            text_color=TEXTO_NORMAL,
             wraplength=700,
             justify="left"
         ).grid(
-            row=2,
+            row=3,
             column=1,
             padx=20,
             pady=7,
@@ -292,11 +341,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Alfabeto:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=3,
+            row=4,
             column=0,
             padx=20,
             pady=7,
@@ -305,9 +355,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=alfabeto
+            text=alfabeto,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=3,
+            row=4,
             column=1,
             padx=20,
             pady=7,
@@ -321,11 +372,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estado inicial:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=4,
+            row=5,
             column=0,
             padx=20,
             pady=7,
@@ -334,9 +386,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.automata.estado_inicial
+            text=self.automata.estado_inicial,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=4,
+            row=5,
             column=1,
             padx=20,
             pady=7,
@@ -360,11 +413,12 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados finales:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=5,
+            row=6,
             column=0,
             padx=20,
             pady=7,
@@ -373,9 +427,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=finales
+            text=finales,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=5,
+            row=6,
             column=1,
             padx=20,
             pady=7,
@@ -395,25 +450,29 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Transiciones:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=6,
+            row=7,
             column=0,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
         ctk.CTkLabel(
             self.frame_info,
-            text=str(cantidad)
+            text=str(
+                cantidad
+            ),
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=6,
+            row=7,
             column=1,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
@@ -424,7 +483,11 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
     def crear_controles(self):
 
         self.frame_controles = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_controles.grid(
@@ -440,23 +503,45 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
+        self.frame_controles.grid_columnconfigure(
+            1,
+            weight=1
+        )
+
+        ctk.CTkLabel(
+            self.frame_controles,
+            text="Conversión",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=19,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 5)
+        )
+
         self.lbl_estado_conversion = ctk.CTkLabel(
             self.frame_controles,
             text=(
                 "Presione Convertir para iniciar "
                 "la construcción de subconjuntos."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=14
             )
         )
 
         self.lbl_estado_conversion.grid(
-            row=0,
+            row=1,
             column=0,
             columnspan=2,
             padx=20,
-            pady=(15, 10)
+            pady=(5, 12)
         )
 
         self.btn_convertir = ctk.CTkButton(
@@ -464,14 +549,18 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             text="Convertir AFN → AFD",
             width=210,
             height=42,
-            command=self.convertir
+            command=self.convertir,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_convertir.grid(
-            row=1,
+            row=2,
             column=0,
-            padx=10,
-            pady=(5, 20)
+            padx=(20, 10),
+            pady=(5, 20),
+            sticky="e"
         )
 
         self.btn_usar_afd = ctk.CTkButton(
@@ -480,17 +569,21 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             width=210,
             height=42,
             command=self.usar_afd_convertido,
-            state="disabled"
+            state="disabled",
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON,
+            text_color_disabled=TEXTO_DESHABILITADO
         )
 
         self.btn_usar_afd.grid(
-            row=1,
+            row=2,
             column=1,
-            padx=10,
-            pady=(5, 20)
+            padx=(10, 20),
+            pady=(5, 20),
+            sticky="w"
         )
 
-        # Si no existe AFN válido
         if (
             self.automata is None
             or self.tipo != "AFN"
@@ -502,9 +595,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
             self.lbl_estado_conversion.configure(
                 text=(
-                    "Debe cargar un AFN para utilizar "
-                    "esta función."
-                )
+                    "Debe cargar un AFN para "
+                    "utilizar esta función."
+                ),
+                text_color=COLOR_ADVERTENCIA
             )
 
     # =========================================================
@@ -514,7 +608,11 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
     def crear_resultado(self):
 
         self.frame_resultado = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_resultado.grid(
@@ -530,13 +628,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
-        # -----------------------------------------------------
-        # TÍTULO
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_resultado,
             text="Resultado de la conversión",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=20,
                 weight="bold"
@@ -548,16 +643,13 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             pady=(18, 5)
         )
 
-        # -----------------------------------------------------
-        # RESUMEN
-        # -----------------------------------------------------
-
         self.lbl_resumen = ctk.CTkLabel(
             self.frame_resultado,
             text=(
                 "Todavía no se ha realizado "
                 "ninguna conversión."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=15,
                 weight="bold"
@@ -571,17 +663,17 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             pady=10
         )
 
-        # -----------------------------------------------------
-        # TEXTO DEL RESULTADO
-        # -----------------------------------------------------
-
         self.txt_resultado = ctk.CTkTextbox(
             self.frame_resultado,
             height=390,
             font=(
                 "Consolas",
                 14
-            )
+            ),
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.txt_resultado.grid(
@@ -604,6 +696,19 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         if self.automata is None:
 
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó convertir un AFN "
+                    "sin un autómata cargado"
+                )
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un AFN cargado.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 "Primero debe crear un AFN."
@@ -612,6 +717,19 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
             return
 
         if self.tipo != "AFN":
+
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó realizar una conversión "
+                    f"AFN → AFD utilizando un {self.tipo}"
+                )
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: La conversión requiere un AFN.",
+                "advertencia"
+            )
 
             messagebox.showwarning(
                 "Tipo incorrecto",
@@ -626,27 +744,15 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         try:
 
-            # =================================================
-            # CONVERSIÓN
-            # =================================================
-
             self.afd_convertido = (
                 convertir_afn_a_afd(
                     self.automata
                 )
             )
 
-            # =================================================
-            # TEXTO PRINCIPAL
-            # =================================================
-
             texto = formatear_conversion(
                 self.afd_convertido
             )
-
-            # =================================================
-            # TABLA
-            # =================================================
 
             tabla = obtener_tabla_conversion(
                 self.afd_convertido
@@ -668,10 +774,6 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                 + "\n\n"
                 + texto_tabla
             )
-
-            # =================================================
-            # MOSTRAR
-            # =================================================
 
             self.txt_resultado.configure(
                 state="normal"
@@ -704,28 +806,67 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                     f"Conversión completada: "
                     f"{cantidad_afn} estados en el AFN → "
                     f"{cantidad_afd} estados en el AFD"
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.lbl_estado_conversion.configure(
                 text=(
-                    "AFD equivalente generado correctamente."
-                )
+                    "AFD equivalente generado "
+                    "correctamente."
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.btn_usar_afd.configure(
                 state="normal"
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: AFN - "
                     f"{self.automata.nombre} | "
-                    f"AFD equivalente generado"
+                    "AFD equivalente generado"
+                ),
+                "exito"
+            )
+
+            registrar_info(
+                "CONVERSION",
+                (
+                    "Conversión AFN → AFD completada "
+                    f"correctamente para "
+                    f"{self.automata.nombre}. "
+                    f"Estados AFN: {cantidad_afn}. "
+                    f"Estados AFD: {cantidad_afd}"
                 )
             )
 
         except Exception as error:
+
+            self.lbl_estado_conversion.configure(
+                text=(
+                    "No fue posible realizar "
+                    "la conversión."
+                ),
+                text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Error durante "
+                    "la conversión AFN → AFD."
+                ),
+                "error"
+            )
+
+            registrar_error(
+                "CONVERSION",
+                (
+                    "No fue posible convertir "
+                    f"el AFN a AFD: {error}"
+                )
+            )
 
             messagebox.showerror(
                 "Error de conversión",
@@ -746,22 +887,21 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
     ):
 
         if not tabla:
+
             return "No existen datos."
 
         simbolos = sorted(
             self.afd_convertido.alfabeto
         )
 
-        # -----------------------------------------------------
-        # CALCULAR ANCHOS
-        # -----------------------------------------------------
-
         ancho_estado = max(
             15,
             max(
-                len(str(
-                    fila["estado"]
-                ))
+                len(
+                    str(
+                        fila["estado"]
+                    )
+                )
                 for fila in tabla
             ) + 2
         )
@@ -772,7 +912,11 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
             ancho = max(
                 10,
-                len(str(simbolo)) + 2
+                len(
+                    str(
+                        simbolo
+                    )
+                ) + 2
             )
 
             for fila in tabla:
@@ -784,16 +928,16 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
                 ancho = max(
                     ancho,
-                    len(str(destino)) + 2
+                    len(
+                        str(
+                            destino
+                        )
+                    ) + 2
                 )
 
             anchos_simbolos[
                 simbolo
             ] = ancho
-
-        # -----------------------------------------------------
-        # ENCABEZADO
-        # -----------------------------------------------------
 
         encabezado = (
             "Estado".ljust(
@@ -804,8 +948,9 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
         for simbolo in simbolos:
 
             encabezado += (
-                str(simbolo)
-                .center(
+                str(
+                    simbolo
+                ).center(
                     anchos_simbolos[
                         simbolo
                     ]
@@ -814,12 +959,10 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         lineas = [
             encabezado,
-            "-" * len(encabezado)
+            "-" * len(
+                encabezado
+            )
         ]
-
-        # -----------------------------------------------------
-        # FILAS
-        # -----------------------------------------------------
 
         for fila in tabla:
 
@@ -827,19 +970,20 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                 "estado"
             ]
 
-            # Indicadores
             prefijo = ""
 
             if (
                 estado
                 == self.afd_convertido.estado_inicial
             ):
+
                 prefijo += "→ "
 
             if (
                 estado
                 in self.afd_convertido.estados_finales
             ):
+
                 prefijo += "* "
 
             estado_texto = (
@@ -861,8 +1005,9 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                 )
 
                 linea += (
-                    str(destino)
-                    .center(
+                    str(
+                        destino
+                    ).center(
                         anchos_simbolos[
                             simbolo
                         ]
@@ -895,6 +1040,14 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
         if self.afd_convertido is None:
 
+            registrar_warning(
+                "CONVERSION",
+                (
+                    "Se intentó usar un AFD convertido "
+                    "sin realizar primero la conversión"
+                )
+            )
+
             messagebox.showwarning(
                 "Sin conversión",
                 (
@@ -905,24 +1058,44 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
 
             return
 
-        respuesta = (
-            messagebox.askyesno(
-                "Usar AFD convertido",
-                (
-                    "¿Desea convertir el AFD generado "
-                    "en el autómata actualmente cargado?\n\n"
-                    "Después podrá simularlo, visualizar "
-                    "su diagrama y minimizarlo."
-                )
+        respuesta = messagebox.askyesno(
+            "Usar AFD convertido",
+            (
+                "¿Desea convertir el AFD generado "
+                "en el autómata actualmente cargado?\n\n"
+                "Después podrá simularlo, visualizar "
+                "su diagrama y minimizarlo."
             )
         )
 
         if not respuesta:
+
             return
 
         self.ventana_principal.establecer_automata(
             self.afd_convertido,
             "AFD"
+        )
+
+        registrar_info(
+            "CONVERSION",
+            (
+                "AFD convertido establecido "
+                "como autómata actual: "
+                f"{self.afd_convertido.nombre}"
+            )
+        )
+
+        self.lbl_estado_conversion.configure(
+            text=(
+                "El AFD convertido fue cargado "
+                "como autómata actual."
+            ),
+            text_color=COLOR_EXITO
+        )
+
+        self.btn_usar_afd.configure(
+            state="disabled"
         )
 
         messagebox.showinfo(
@@ -931,15 +1104,4 @@ class ConversionAFNaAFDFrame(ctk.CTkScrollableFrame):
                 "El AFD convertido ahora es "
                 "el autómata actual."
             )
-        )
-
-        self.lbl_estado_conversion.configure(
-            text=(
-                "El AFD convertido fue cargado "
-                "como autómata actual."
-            )
-        )
-
-        self.btn_usar_afd.configure(
-            state="disabled"
         )
