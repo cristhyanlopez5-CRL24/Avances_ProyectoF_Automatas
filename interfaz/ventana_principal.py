@@ -29,6 +29,10 @@ from interfaz.expresiones_regulares import (
     ExpresionesRegularesFrame
 )
 
+from interfaz.validacion_logs import (
+    ValidacionLogsFrame
+)
+
 from utilidades.persistencia import (
     guardar_automata,
     cargar_automata
@@ -479,6 +483,13 @@ class VentanaPrincipal(ctk.CTk):
             self.crear_boton_menu(
                 "Expresiones regulares",
                 self.mostrar_regex
+            )
+        )
+
+        self.btn_logs = (
+            self.crear_boton_menu(
+                "Validación de logs",
+                self.mostrar_validacion_logs
             )
         )
 
@@ -1279,6 +1290,27 @@ class VentanaPrincipal(ctk.CTk):
         )
 
         regex.grid(
+            row=0,
+            column=0,
+            sticky="nsew"
+        )
+
+
+
+    # =========================================================
+    # VALIDACIÓN DE LOGS
+    # =========================================================
+
+    def mostrar_validacion_logs(self):
+
+        self.limpiar_contenido()
+
+        validacion = ValidacionLogsFrame(
+            self.frame_contenido,
+            self
+        )
+
+        validacion.grid(
             row=0,
             column=0,
             sticky="nsew"
