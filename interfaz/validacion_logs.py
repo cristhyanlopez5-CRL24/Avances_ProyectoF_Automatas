@@ -16,7 +16,6 @@ from utilidades.registro_logs import (
 )
 
 from utilidades.tema import (
-    FONDO_APP,
     FONDO_PANEL,
     FONDO_ENTRADA,
     TEXTO_TITULO,
@@ -29,7 +28,9 @@ from utilidades.tema import (
     COLOR_BORDE,
     COLOR_EXITO,
     COLOR_ADVERTENCIA,
-    COLOR_ERROR
+    COLOR_ERROR,
+    COLOR_INFO,
+    COLOR_CRITICAL
 )
 
 
@@ -54,15 +55,47 @@ class ValidacionLogsFrame(ctk.CTkFrame):
 
         self.resultado_actual = None
 
+        # =====================================================
+        # CONTENEDOR GENERAL
+        # =====================================================
+
+        self.grid_rowconfigure(
+            0,
+            weight=1
+        )
+
         self.grid_columnconfigure(
             0,
             weight=1
         )
 
-        self.grid_rowconfigure(
-            5,
+        # =====================================================
+        # ÁREA DESPLAZABLE
+        # =====================================================
+
+        self.scroll_principal = (
+            ctk.CTkScrollableFrame(
+                self,
+                fg_color="transparent",
+                corner_radius=0,
+                orientation="vertical"
+            )
+        )
+
+        self.scroll_principal.grid(
+            row=0,
+            column=0,
+            sticky="nsew"
+        )
+
+        self.scroll_principal.grid_columnconfigure(
+            0,
             weight=1
         )
+
+        # =====================================================
+        # CREAR INTERFAZ
+        # =====================================================
 
         self.crear_encabezado()
 
@@ -70,7 +103,9 @@ class ValidacionLogsFrame(ctk.CTkFrame):
 
         self.crear_filtros()
 
-        self.crear_resumen()
+        self.crear_resumen_severidad()
+
+        self.crear_resumen_validacion()
 
         self.crear_estado()
 
@@ -78,6 +113,8 @@ class ValidacionLogsFrame(ctk.CTkFrame):
 
         self.mostrar_mensaje_inicial()
 
+        # Cargar automáticamente
+        # el archivo del día actual.
         self.after(
             150,
             self.cargar_log_hoy
@@ -90,7 +127,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
     def crear_encabezado(self):
 
         frame = ctk.CTkFrame(
-            self,
+            self.scroll_principal,
             fg_color="transparent"
         )
 
@@ -98,7 +135,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=0,
             column=0,
             padx=30,
-            pady=(20, 8),
+            pady=(16, 6),
             sticky="ew"
         )
 
@@ -118,7 +155,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         ).grid(
             row=0,
             column=0,
-            pady=(0, 5)
+            pady=(0, 3)
         )
 
         ctk.CTkLabel(
@@ -143,7 +180,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
     def crear_selector_archivo(self):
 
         self.frame_archivo = ctk.CTkFrame(
-            self,
+            self.scroll_principal,
             fg_color=FONDO_PANEL,
             border_width=1,
             border_color=COLOR_BORDE,
@@ -154,24 +191,16 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=1,
             column=0,
             padx=30,
-            pady=8,
+            pady=6,
             sticky="ew"
         )
 
-        self.frame_archivo.grid_columnconfigure(
-            0,
-            weight=1
-        )
+        for columna in range(3):
 
-        self.frame_archivo.grid_columnconfigure(
-            1,
-            weight=1
-        )
-
-        self.frame_archivo.grid_columnconfigure(
-            2,
-            weight=1
-        )
+            self.frame_archivo.grid_columnconfigure(
+                columna,
+                weight=1
+            )
 
         ctk.CTkLabel(
             self.frame_archivo,
@@ -186,7 +215,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             column=0,
             columnspan=3,
             padx=20,
-            pady=(14, 5),
+            pady=(11, 4),
             sticky="w"
         )
 
@@ -196,7 +225,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             text_color=TEXTO_SUAVE,
             anchor="w",
             justify="left",
-            wraplength=700
+            wraplength=850
         )
 
         self.lbl_archivo.grid(
@@ -204,7 +233,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             column=0,
             columnspan=3,
             padx=20,
-            pady=(0, 10),
+            pady=(0, 8),
             sticky="ew"
         )
 
@@ -215,14 +244,14 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            height=36
+            height=34
         )
 
         self.btn_hoy.grid(
             row=2,
             column=0,
             padx=(20, 5),
-            pady=(0, 15),
+            pady=(0, 12),
             sticky="ew"
         )
 
@@ -233,14 +262,14 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            height=36
+            height=34
         )
 
         self.btn_seleccionar.grid(
             row=2,
             column=1,
             padx=5,
-            pady=(0, 15),
+            pady=(0, 12),
             sticky="ew"
         )
 
@@ -252,7 +281,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
             text_color_disabled=TEXTO_DESHABILITADO,
-            height=36,
+            height=34,
             state="disabled"
         )
 
@@ -260,7 +289,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=2,
             column=2,
             padx=(5, 20),
-            pady=(0, 15),
+            pady=(0, 12),
             sticky="ew"
         )
 
@@ -271,7 +300,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
     def crear_filtros(self):
 
         self.frame_filtros = ctk.CTkFrame(
-            self,
+            self.scroll_principal,
             fg_color=FONDO_PANEL,
             border_width=1,
             border_color=COLOR_BORDE,
@@ -282,7 +311,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=2,
             column=0,
             padx=30,
-            pady=(2, 8),
+            pady=(2, 6),
             sticky="ew"
         )
 
@@ -309,7 +338,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             column=0,
             columnspan=5,
             padx=20,
-            pady=(12, 8),
+            pady=(10, 6),
             sticky="w"
         )
 
@@ -328,7 +357,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=1,
             column=0,
             padx=(20, 8),
-            pady=(0, 14),
+            pady=(0, 11),
             sticky="w"
         )
 
@@ -346,14 +375,14 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             button_color=BOTON_PRINCIPAL,
             button_hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            height=34
+            height=32
         )
 
         self.selector_nivel.grid(
             row=1,
             column=1,
             padx=(0, 15),
-            pady=(0, 14),
+            pady=(0, 11),
             sticky="ew"
         )
 
@@ -376,7 +405,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=1,
             column=2,
             padx=(5, 8),
-            pady=(0, 14),
+            pady=(0, 11),
             sticky="w"
         )
 
@@ -390,14 +419,14 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             button_color=BOTON_PRINCIPAL,
             button_hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            height=34
+            height=32
         )
 
         self.selector_modulo.grid(
             row=1,
             column=3,
             padx=(0, 15),
-            pady=(0, 14),
+            pady=(0, 11),
             sticky="ew"
         )
 
@@ -406,7 +435,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
         # -----------------------------------------------------
-        # LIMPIAR
+        # LIMPIAR FILTROS
         # -----------------------------------------------------
 
         self.btn_limpiar_filtros = ctk.CTkButton(
@@ -416,7 +445,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            height=34,
+            height=32,
             width=130
         )
 
@@ -424,25 +453,134 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             row=1,
             column=4,
             padx=(0, 20),
-            pady=(0, 14)
+            pady=(0, 11)
         )
 
     # =========================================================
-    # RESUMEN
+    # CREAR TARJETA DE SEVERIDAD
     # =========================================================
 
-    def crear_resumen(self):
+    def crear_card_severidad(
+        self,
+        master,
+        columna,
+        titulo,
+        color
+    ):
+
+        card = ctk.CTkFrame(
+            master,
+            fg_color=FONDO_PANEL,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=10
+        )
+
+        card.grid(
+            row=0,
+            column=columna,
+            padx=4,
+            sticky="ew"
+        )
+
+        ctk.CTkLabel(
+            card,
+            text=titulo,
+            text_color=TEXTO_NORMAL,
+            font=ctk.CTkFont(
+                size=12,
+                weight="bold"
+            )
+        ).pack(
+            pady=(6, 0)
+        )
+
+        label = ctk.CTkLabel(
+            card,
+            text="0",
+            text_color=color,
+            font=ctk.CTkFont(
+                size=21,
+                weight="bold"
+            )
+        )
+
+        label.pack(
+            pady=(0, 6)
+        )
+
+        return label
+
+    # =========================================================
+    # RESUMEN POR SEVERIDAD
+    # =========================================================
+
+    def crear_resumen_severidad(self):
+
+        self.frame_severidad = ctk.CTkFrame(
+            self.scroll_principal,
+            fg_color="transparent"
+        )
+
+        self.frame_severidad.grid(
+            row=3,
+            column=0,
+            padx=30,
+            pady=(1, 4),
+            sticky="ew"
+        )
+
+        for columna in range(4):
+
+            self.frame_severidad.grid_columnconfigure(
+                columna,
+                weight=1
+            )
+
+        self.lbl_info = self.crear_card_severidad(
+            self.frame_severidad,
+            0,
+            "INFO",
+            COLOR_INFO
+        )
+
+        self.lbl_warning = self.crear_card_severidad(
+            self.frame_severidad,
+            1,
+            "WARNING",
+            COLOR_ADVERTENCIA
+        )
+
+        self.lbl_error = self.crear_card_severidad(
+            self.frame_severidad,
+            2,
+            "ERROR",
+            COLOR_ERROR
+        )
+
+        self.lbl_critical = self.crear_card_severidad(
+            self.frame_severidad,
+            3,
+            "CRITICAL",
+            COLOR_CRITICAL
+        )
+
+    # =========================================================
+    # RESUMEN DE VALIDACIÓN
+    # =========================================================
+
+    def crear_resumen_validacion(self):
 
         self.frame_resumen = ctk.CTkFrame(
-            self,
+            self.scroll_principal,
             fg_color="transparent"
         )
 
         self.frame_resumen.grid(
-            row=3,
+            row=4,
             column=0,
             padx=30,
-            pady=(4, 2),
+            pady=(0, 2),
             sticky="ew"
         )
 
@@ -456,6 +594,10 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             weight=1
         )
 
+        # -----------------------------------------------------
+        # VÁLIDOS
+        # -----------------------------------------------------
+
         self.card_validos = ctk.CTkFrame(
             self.frame_resumen,
             fg_color=FONDO_PANEL,
@@ -467,7 +609,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         self.card_validos.grid(
             row=0,
             column=0,
-            padx=(0, 6),
+            padx=(0, 5),
             sticky="ew"
         )
 
@@ -476,11 +618,11 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             text="Registros válidos",
             text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
-                size=13,
+                size=12,
                 weight="bold"
             )
         ).pack(
-            pady=(9, 0)
+            pady=(5, 0)
         )
 
         self.lbl_validos = ctk.CTkLabel(
@@ -488,14 +630,18 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             text="0",
             text_color=COLOR_EXITO,
             font=ctk.CTkFont(
-                size=23,
+                size=19,
                 weight="bold"
             )
         )
 
         self.lbl_validos.pack(
-            pady=(0, 9)
+            pady=(0, 5)
         )
+
+        # -----------------------------------------------------
+        # INVÁLIDOS
+        # -----------------------------------------------------
 
         self.card_invalidos = ctk.CTkFrame(
             self.frame_resumen,
@@ -508,7 +654,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         self.card_invalidos.grid(
             row=0,
             column=1,
-            padx=(6, 0),
+            padx=(5, 0),
             sticky="ew"
         )
 
@@ -517,11 +663,11 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             text="Registros inválidos",
             text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
-                size=13,
+                size=12,
                 weight="bold"
             )
         ).pack(
-            pady=(9, 0)
+            pady=(5, 0)
         )
 
         self.lbl_invalidos = ctk.CTkLabel(
@@ -529,13 +675,13 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             text="0",
             text_color=COLOR_ERROR,
             font=ctk.CTkFont(
-                size=23,
+                size=19,
                 weight="bold"
             )
         )
 
         self.lbl_invalidos.pack(
-            pady=(0, 9)
+            pady=(0, 5)
         )
 
     # =========================================================
@@ -545,7 +691,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
     def crear_estado(self):
 
         self.lbl_estado = ctk.CTkLabel(
-            self,
+            self.scroll_principal,
             text=(
                 "Seleccione un archivo de logs "
                 "para comenzar."
@@ -559,44 +705,57 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
         self.lbl_estado.grid(
-            row=4,
+            row=5,
             column=0,
             padx=35,
-            pady=(5, 5),
+            pady=(3, 3),
             sticky="ew"
         )
 
     # =========================================================
-    # RESULTADOS
+    # ÁREA DE RESULTADOS
     # =========================================================
 
     def crear_area_resultados(self):
 
         self.frame_resultados = ctk.CTkFrame(
-            self,
+            self.scroll_principal,
             fg_color=FONDO_PANEL,
             border_width=1,
             border_color=COLOR_BORDE,
-            corner_radius=12
+            corner_radius=12,
+            height=320
         )
 
         self.frame_resultados.grid(
-            row=5,
+            row=6,
             column=0,
             padx=30,
-            pady=(5, 20),
-            sticky="nsew"
+            pady=(3, 20),
+            sticky="ew"
         )
 
+        # Más espacio para los registros válidos.
         self.frame_resultados.grid_columnconfigure(
             0,
+            weight=3
+        )
+
+        # Menos espacio para los inválidos.
+        self.frame_resultados.grid_columnconfigure(
+            1,
             weight=1
         )
 
         self.frame_resultados.grid_rowconfigure(
             1,
-            weight=1
+            weight=1,
+            minsize=230
         )
+
+        # =====================================================
+        # REGISTROS VÁLIDOS
+        # =====================================================
 
         ctk.CTkLabel(
             self.frame_resultados,
@@ -609,13 +768,14 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         ).grid(
             row=0,
             column=0,
-            padx=15,
-            pady=(12, 5),
+            padx=(15, 8),
+            pady=(12, 6),
             sticky="w"
         )
 
         self.txt_validos = ctk.CTkTextbox(
             self.frame_resultados,
+            height=230,
             fg_color=FONDO_ENTRADA,
             text_color=TEXTO_NORMAL,
             border_width=1,
@@ -630,8 +790,8 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         self.txt_validos.grid(
             row=1,
             column=0,
-            padx=15,
-            pady=(0, 10),
+            padx=(15, 8),
+            pady=(0, 15),
             sticky="nsew"
         )
 
@@ -639,25 +799,29 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             state="disabled"
         )
 
+        # =====================================================
+        # REGISTROS INVÁLIDOS
+        # =====================================================
+
         ctk.CTkLabel(
             self.frame_resultados,
-            text="Registros inválidos detectados",
+            text="Registros inválidos",
             text_color=COLOR_ADVERTENCIA,
             font=ctk.CTkFont(
                 size=14,
                 weight="bold"
             )
         ).grid(
-            row=2,
-            column=0,
-            padx=15,
-            pady=(2, 5),
+            row=0,
+            column=1,
+            padx=(8, 15),
+            pady=(12, 6),
             sticky="w"
         )
 
         self.txt_invalidos = ctk.CTkTextbox(
             self.frame_resultados,
-            height=105,
+            height=230,
             fg_color=FONDO_ENTRADA,
             text_color=TEXTO_NORMAL,
             border_width=1,
@@ -670,11 +834,11 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
         self.txt_invalidos.grid(
-            row=3,
-            column=0,
-            padx=15,
+            row=1,
+            column=1,
+            padx=(8, 15),
             pady=(0, 15),
-            sticky="ew"
+            sticky="nsew"
         )
 
         self.txt_invalidos.configure(
@@ -682,7 +846,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
     # =========================================================
-    # TEXTBOX
+    # ESCRIBIR EN TEXTBOX
     # =========================================================
 
     def escribir_textbox(
@@ -796,13 +960,7 @@ class ValidacionLogsFrame(ctk.CTkFrame):
                 text_color=COLOR_ADVERTENCIA
             )
 
-            self.lbl_validos.configure(
-                text="0"
-            )
-
-            self.lbl_invalidos.configure(
-                text="0"
-            )
+            self.reiniciar_contadores()
 
             self.btn_actualizar.configure(
                 state="disabled"
@@ -815,7 +973,37 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
     # =========================================================
-    # ACTUALIZAR
+    # REINICIAR CONTADORES
+    # =========================================================
+
+    def reiniciar_contadores(self):
+
+        self.lbl_info.configure(
+            text="0"
+        )
+
+        self.lbl_warning.configure(
+            text="0"
+        )
+
+        self.lbl_error.configure(
+            text="0"
+        )
+
+        self.lbl_critical.configure(
+            text="0"
+        )
+
+        self.lbl_validos.configure(
+            text="0"
+        )
+
+        self.lbl_invalidos.configure(
+            text="0"
+        )
+
+    # =========================================================
+    # ACTUALIZAR LOG
     # =========================================================
 
     def actualizar_log(self):
@@ -830,10 +1018,29 @@ class ValidacionLogsFrame(ctk.CTkFrame):
                 text_color=COLOR_ADVERTENCIA
             )
 
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: No hay un archivo "
+                    "de logs cargado."
+                ),
+                "advertencia"
+            )
+
             return
 
+        nivel_actual = (
+            self.selector_nivel.get()
+        )
+
+        modulo_actual = (
+            self.selector_modulo.get()
+        )
+
         self.cargar_archivo(
-            self.ruta_actual
+            self.ruta_actual,
+            conservar_filtros=True,
+            nivel_anterior=nivel_actual,
+            modulo_anterior=modulo_actual
         )
 
     # =========================================================
@@ -842,7 +1049,10 @@ class ValidacionLogsFrame(ctk.CTkFrame):
 
     def cargar_archivo(
         self,
-        ruta
+        ruta,
+        conservar_filtros=False,
+        nivel_anterior="Todos",
+        modulo_anterior="Todos"
     ):
 
         try:
@@ -869,9 +1079,21 @@ class ValidacionLogsFrame(ctk.CTkFrame):
                 state="normal"
             )
 
-            self.actualizar_modulos()
+            self.actualizar_modulos(
+                conservar_filtros=(
+                    conservar_filtros
+                ),
+                nivel_anterior=(
+                    nivel_anterior
+                ),
+                modulo_anterior=(
+                    modulo_anterior
+                )
+            )
 
-            self.mostrar_resultado_general()
+            self.actualizar_resumen()
+
+            self.mostrar_invalidos()
 
             self.aplicar_filtros()
 
@@ -926,10 +1148,73 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             )
 
     # =========================================================
-    # ACTUALIZAR MÓDULOS DISPONIBLES
+    # ACTUALIZAR RESUMEN
     # =========================================================
 
-    def actualizar_modulos(self):
+    def actualizar_resumen(self):
+
+        if self.resultado_actual is None:
+
+            self.reiniciar_contadores()
+
+            return
+
+        resumen = (
+            self.resultado_actual[
+                "resumen_niveles"
+            ]
+        )
+
+        self.lbl_info.configure(
+            text=str(
+                resumen["INFO"]
+            )
+        )
+
+        self.lbl_warning.configure(
+            text=str(
+                resumen["WARNING"]
+            )
+        )
+
+        self.lbl_error.configure(
+            text=str(
+                resumen["ERROR"]
+            )
+        )
+
+        self.lbl_critical.configure(
+            text=str(
+                resumen["CRITICAL"]
+            )
+        )
+
+        self.lbl_validos.configure(
+            text=str(
+                self.resultado_actual[
+                    "cantidad_validos"
+                ]
+            )
+        )
+
+        self.lbl_invalidos.configure(
+            text=str(
+                self.resultado_actual[
+                    "cantidad_invalidos"
+                ]
+            )
+        )
+
+    # =========================================================
+    # ACTUALIZAR MÓDULOS
+    # =========================================================
+
+    def actualizar_modulos(
+        self,
+        conservar_filtros=False,
+        nivel_anterior="Todos",
+        modulo_anterior="Todos"
+    ):
 
         if self.resultado_actual is None:
 
@@ -951,16 +1236,58 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             values=opciones
         )
 
-        self.selector_modulo.set(
-            "Todos"
-        )
+        if conservar_filtros:
 
-        self.selector_nivel.set(
-            "Todos"
-        )
+            niveles_permitidos = [
+                "Todos",
+                "INFO",
+                "WARNING",
+                "ERROR",
+                "CRITICAL"
+            ]
+
+            if (
+                nivel_anterior
+                in niveles_permitidos
+            ):
+
+                self.selector_nivel.set(
+                    nivel_anterior
+                )
+
+            else:
+
+                self.selector_nivel.set(
+                    "Todos"
+                )
+
+            if (
+                modulo_anterior
+                in opciones
+            ):
+
+                self.selector_modulo.set(
+                    modulo_anterior
+                )
+
+            else:
+
+                self.selector_modulo.set(
+                    "Todos"
+                )
+
+        else:
+
+            self.selector_modulo.set(
+                "Todos"
+            )
+
+            self.selector_nivel.set(
+                "Todos"
+            )
 
     # =========================================================
-    # CAMBIO DE FILTRO
+    # CAMBIAR FILTRO
     # =========================================================
 
     def al_cambiar_filtro(
@@ -1047,10 +1374,12 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             filtrados
         )
 
-        if (
+        sin_filtros = (
             nivel_seleccionado == "Todos"
             and modulo_seleccionado == "Todos"
-        ):
+        )
+
+        if sin_filtros:
 
             texto_estado = (
                 f"Mostrando los {total} "
@@ -1065,17 +1394,20 @@ class ValidacionLogsFrame(ctk.CTkFrame):
                 f"{total} registros."
             )
 
-        if (
+        cantidad_invalidos = (
             self.resultado_actual[
                 "cantidad_invalidos"
             ]
-            > 0
-        ):
+        )
+
+        if cantidad_invalidos > 0:
 
             self.lbl_estado.configure(
                 text=(
                     texto_estado
-                    + " Existen registros inválidos."
+                    + f" Se detectaron "
+                    f"{cantidad_invalidos} "
+                    "registros inválidos."
                 ),
                 text_color=COLOR_ADVERTENCIA
             )
@@ -1085,6 +1417,50 @@ class ValidacionLogsFrame(ctk.CTkFrame):
             self.lbl_estado.configure(
                 text=texto_estado,
                 text_color=COLOR_EXITO
+            )
+
+        # -----------------------------------------------------
+        # BARRA INFERIOR
+        # -----------------------------------------------------
+
+        if sin_filtros:
+
+            if cantidad_invalidos == 0:
+
+                self.ventana_principal.actualizar_barra_estado(
+                    (
+                        f"Estado: Logs validados - "
+                        f"{total} válidos"
+                    ),
+                    "exito"
+                )
+
+            else:
+
+                self.ventana_principal.actualizar_barra_estado(
+                    (
+                        f"Estado: Logs validados - "
+                        f"{total} válidos, "
+                        f"{cantidad_invalidos} inválidos"
+                    ),
+                    "advertencia"
+                )
+
+        else:
+
+            tipo_barra = (
+                "advertencia"
+                if cantidad_invalidos > 0
+                else "exito"
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Filtro de logs - "
+                    f"{cantidad_filtrada} de "
+                    f"{total} registros"
+                ),
+                tipo_barra
             )
 
     # =========================================================
@@ -1100,43 +1476,15 @@ class ValidacionLogsFrame(ctk.CTkFrame):
 
         for registro in registros:
 
-            numero = (
-                registro[
-                    "numero_linea"
-                ]
-            )
-
-            fecha_hora = (
-                registro[
-                    "fecha_hora"
-                ]
-            )
-
-            nivel = (
-                registro[
-                    "nivel"
-                ]
-            )
-
-            modulo = (
-                registro[
-                    "modulo"
-                ]
-            )
-
-            mensaje = (
-                registro[
-                    "mensaje"
-                ]
-            )
-
             lineas.append(
                 (
-                    f"Línea {numero}\n"
-                    f"{fecha_hora} | "
-                    f"{nivel} | "
-                    f"{modulo}\n"
-                    f"Mensaje: {mensaje}\n"
+                    f"Línea "
+                    f"{registro['numero_linea']}\n"
+                    f"{registro['fecha_hora']} | "
+                    f"{registro['nivel']} | "
+                    f"{registro['modulo']}\n"
+                    f"Mensaje: "
+                    f"{registro['mensaje']}\n"
                     + "-" * 70
                 )
             )
@@ -1150,8 +1498,13 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         else:
 
             texto = (
-                "No existen registros que coincidan "
-                "con los filtros seleccionados."
+                "No se encontraron registros "
+                "que coincidan con los filtros "
+                "seleccionados.\n\n"
+                "Esto no representa un error. "
+                "Simplemente no existen registros "
+                "con esa combinación de nivel "
+                "y módulo."
             )
 
         self.escribir_textbox(
@@ -1160,119 +1513,47 @@ class ValidacionLogsFrame(ctk.CTkFrame):
         )
 
     # =========================================================
-    # MOSTRAR RESULTADO GENERAL
+    # MOSTRAR REGISTROS INVÁLIDOS
     # =========================================================
 
-    def mostrar_resultado_general(self):
+    def mostrar_invalidos(self):
 
         if self.resultado_actual is None:
 
             return
 
-        resultado = (
-            self.resultado_actual
-        )
-
-        cantidad_validos = (
-            resultado[
-                "cantidad_validos"
-            ]
-        )
-
-        cantidad_invalidos = (
-            resultado[
-                "cantidad_invalidos"
-            ]
-        )
-
-        self.lbl_validos.configure(
-            text=str(
-                cantidad_validos
-            )
-        )
-
-        self.lbl_invalidos.configure(
-            text=str(
-                cantidad_invalidos
-            )
-        )
-
-        # -----------------------------------------------------
-        # INVÁLIDOS
-        # -----------------------------------------------------
-
-        lineas_invalidas = []
+        lineas = []
 
         for registro in (
-            resultado[
+            self.resultado_actual[
                 "registros_invalidos"
             ]
         ):
 
-            numero = (
-                registro[
-                    "numero_linea"
-                ]
-            )
-
-            contenido = (
-                registro[
-                    "contenido"
-                ]
-            )
-
-            error = (
-                registro[
-                    "error"
-                ]
-            )
-
-            lineas_invalidas.append(
+            lineas.append(
                 (
-                    f"Línea {numero}: {error}\n"
-                    f"Contenido: {contenido}\n"
+                    f"Línea "
+                    f"{registro['numero_linea']}: "
+                    f"{registro['error']}\n"
+                    f"Contenido: "
+                    f"{registro['contenido']}\n"
                     + "-" * 70
                 )
             )
 
-        if lineas_invalidas:
+        if lineas:
 
-            texto_invalidos = "\n".join(
-                lineas_invalidas
+            texto = "\n".join(
+                lineas
             )
 
         else:
 
-            texto_invalidos = (
+            texto = (
                 "No se detectaron registros inválidos."
             )
 
         self.escribir_textbox(
             self.txt_invalidos,
-            texto_invalidos
+            texto
         )
-
-        # -----------------------------------------------------
-        # BARRA PRINCIPAL
-        # -----------------------------------------------------
-
-        if cantidad_invalidos == 0:
-
-            self.ventana_principal.actualizar_barra_estado(
-                (
-                    f"Estado: Logs validados - "
-                    f"{cantidad_validos} válidos"
-                ),
-                "exito"
-            )
-
-        else:
-
-            self.ventana_principal.actualizar_barra_estado(
-                (
-                    f"Estado: Logs validados - "
-                    f"{cantidad_validos} válidos, "
-                    f"{cantidad_invalidos} inválidos"
-                ),
-                "advertencia"
-            )
