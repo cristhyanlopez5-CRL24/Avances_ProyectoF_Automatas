@@ -114,3 +114,13 @@ COLOR_ERROR = (
     "#A31621",
     "#EF5350"
 )
+
+COLOR_INFO = (
+    "#0D98BA",
+    "#64B5F6"
+)
+
+COLOR_CRITICAL = (
+    "#6A1B9A",
+    "#CE93D8"
+)

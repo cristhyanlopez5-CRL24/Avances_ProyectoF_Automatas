@@ -3,9 +3,16 @@ import pytest
 from algoritmos.analizador_logs import (
     compilar_patron,
     analizar_texto_log,
-    analizar_archivo_log
+    analizar_archivo_log,
+    validar_linea_log,
+    analizar_texto_logs,
+    analizar_archivo_logs
 )
 
+
+# ============================================================
+# LOG DE EJEMPLO DEL ANALIZADOR ANTERIOR
+# ============================================================
 
 LOG_EJEMPLO = """192.168.1.10 GET /index 200
 192.168.1.20 POST /login 401
@@ -13,6 +20,21 @@ LOG_EJEMPLO = """192.168.1.10 GET /index 200
 192.168.1.30 GET /admin 403
 192.168.1.40 GET /error 500"""
 
+
+# ============================================================
+# LOG REAL GENERADO POR NUESTRA APLICACIÓN
+# ============================================================
+
+LOG_APLICACION = """2026-10-15 20:10:00 | INFO     | SISTEMA      | Aplicación iniciada correctamente.
+2026-10-15 20:11:00 | WARNING  | REGEX        | Expresión regular inválida.
+2026-10-15 20:12:00 | ERROR    | ARCHIVO      | No fue posible abrir el autómata.
+2026-10-15 20:13:00 | CRITICAL | SISTEMA      | Error crítico de prueba.
+esta linea no pertenece al formato"""
+
+
+# ============================================================
+# PRUEBAS DEL ANALIZADOR ANTERIOR
+# ============================================================
 
 def test_compilar_patron_valido():
 
@@ -208,3 +230,263 @@ def test_rechazar_extension_no_permitida(
             archivo,
             r"401"
         )
+
+
+# ============================================================
+# PRUEBAS DE VALIDACIÓN DEL FORMATO REAL
+# ============================================================
+
+def test_validar_linea_info():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:10:00 | "
+            "INFO     | SISTEMA      | "
+            "Aplicación iniciada correctamente."
+        )
+    )
+
+    assert resultado["valido"] is True
+
+    assert resultado["nivel"] == "INFO"
+
+    assert resultado["modulo"] == "SISTEMA"
+
+    assert (
+        resultado["fecha"]
+        == "2026-10-15"
+    )
+
+    assert (
+        resultado["hora"]
+        == "20:10:00"
+    )
+
+
+def test_validar_linea_warning():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:11:00 | "
+            "WARNING | REGEX | "
+            "Expresión regular inválida."
+        )
+    )
+
+    assert resultado["valido"] is True
+
+    assert (
+        resultado["nivel"]
+        == "WARNING"
+    )
+
+    assert (
+        resultado["modulo"]
+        == "REGEX"
+    )
+
+
+def test_validar_linea_error():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:12:00 | "
+            "ERROR | ARCHIVO | "
+            "No fue posible abrir el autómata."
+        )
+    )
+
+    assert resultado["valido"] is True
+
+    assert (
+        resultado["nivel"]
+        == "ERROR"
+    )
+
+
+def test_validar_linea_critical():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:13:00 | "
+            "CRITICAL | SISTEMA | "
+            "Error crítico de prueba."
+        )
+    )
+
+    assert resultado["valido"] is True
+
+    assert (
+        resultado["nivel"]
+        == "CRITICAL"
+    )
+
+
+def test_rechazar_fecha_invalida():
+
+    resultado = validar_linea_log(
+        (
+            "2026-15-40 25:80:90 | "
+            "ERROR | SISTEMA | "
+            "Fecha incorrecta."
+        )
+    )
+
+    assert resultado["valido"] is False
+
+    assert (
+        "fecha"
+        in resultado["error"].lower()
+        or "hora"
+        in resultado["error"].lower()
+    )
+
+
+def test_rechazar_nivel_invalido():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:15:00 | "
+            "PELIGRO | SISTEMA | "
+            "Nivel inexistente."
+        )
+    )
+
+    assert resultado["valido"] is False
+
+    assert (
+        "nivel"
+        in resultado["error"].lower()
+    )
+
+
+def test_rechazar_mensaje_vacio():
+
+    resultado = validar_linea_log(
+        (
+            "2026-10-15 20:16:00 | "
+            "INFO | SISTEMA | "
+        )
+    )
+
+    assert resultado["valido"] is False
+
+    assert (
+        "mensaje"
+        in resultado["error"].lower()
+    )
+
+
+def test_rechazar_linea_sin_formato():
+
+    resultado = validar_linea_log(
+        (
+            "esto no es un registro "
+            "válido de la aplicación"
+        )
+    )
+
+    assert resultado["valido"] is False
+
+    assert (
+        "formato"
+        in resultado["error"].lower()
+    )
+
+
+def test_analizar_texto_logs_generar_resumen():
+
+    resultado = analizar_texto_logs(
+        LOG_APLICACION
+    )
+
+    assert (
+        resultado["total_lineas"]
+        == 5
+    )
+
+    assert (
+        resultado["cantidad_validos"]
+        == 4
+    )
+
+    assert (
+        resultado["cantidad_invalidos"]
+        == 1
+    )
+
+    assert (
+        resultado["resumen_niveles"]
+        ["INFO"]
+        == 1
+    )
+
+    assert (
+        resultado["resumen_niveles"]
+        ["WARNING"]
+        == 1
+    )
+
+    assert (
+        resultado["resumen_niveles"]
+        ["ERROR"]
+        == 1
+    )
+
+    assert (
+        resultado["resumen_niveles"]
+        ["CRITICAL"]
+        == 1
+    )
+
+
+def test_analizar_archivo_logs_aplicacion(
+    tmp_path
+):
+
+    archivo = (
+        tmp_path
+        / "logs_2026-10-15.txt"
+    )
+
+    archivo.write_text(
+        LOG_APLICACION,
+        encoding="utf-8"
+    )
+
+    resultado = analizar_archivo_logs(
+        archivo
+    )
+
+    assert (
+        resultado["nombre_archivo"]
+        == "logs_2026-10-15.txt"
+    )
+
+    assert (
+        resultado["cantidad_validos"]
+        == 4
+    )
+
+    assert (
+        resultado["cantidad_invalidos"]
+        == 1
+    )
+
+    assert (
+        len(
+            resultado[
+                "registros_validos"
+            ]
+        )
+        == 4
+    )
+
+    assert (
+        len(
+            resultado[
+                "registros_invalidos"
+            ]
+        )
+        == 1
+    )
