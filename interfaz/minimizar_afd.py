@@ -14,8 +14,25 @@ from utilidades.registro_logs import (
     registrar_error
 )
 
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_ENTRADA,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    COLOR_ERROR
+)
 
-class MinimizarAFDFrame(ctk.CTkScrollableFrame):
+
+class MinimizarAFDFrame(
+    ctk.CTkScrollableFrame
+):
 
     def __init__(
         self,
@@ -40,21 +57,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             ventana_principal.tipo_automata_actual
         )
 
-        # Aquí guardaremos el resultado
         self.afd_minimo = None
-
-        # =====================================================
-        # CONFIGURACIÓN
-        # =====================================================
 
         self.grid_columnconfigure(
             0,
             weight=1
         )
-
-        # =====================================================
-        # INTERFAZ
-        # =====================================================
 
         self.crear_encabezado()
 
@@ -72,7 +80,8 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
         lbl_titulo = ctk.CTkLabel(
             self,
-            text="Minimización de AFD",
+            text="MINIMIZACIÓN DE AFD",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=28,
                 weight="bold"
@@ -89,8 +98,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             self,
             text=(
                 "Reduce el AFD eliminando estados "
-                "inalcanzables y agrupando estados equivalentes."
+                "inalcanzables y agrupando "
+                "estados equivalentes."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14
             ),
@@ -112,7 +123,11 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
     def crear_informacion_afd(self):
 
         self.frame_info = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_info.grid(
@@ -128,6 +143,22 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
+        ctk.CTkLabel(
+            self.frame_info,
+            text="AFD cargado",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=20,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 10)
+        )
+
         # -----------------------------------------------------
         # NO HAY AUTÓMATA
         # -----------------------------------------------------
@@ -140,16 +171,17 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                     "No hay ningún autómata cargado.\n"
                     "Primero debe crear o convertir un AFD."
                 ),
+                text_color=COLOR_ADVERTENCIA,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
                 )
             ).grid(
-                row=0,
+                row=1,
                 column=0,
                 columnspan=2,
                 padx=20,
-                pady=25
+                pady=(5, 25)
             )
 
             return
@@ -163,21 +195,23 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             ctk.CTkLabel(
                 self.frame_info,
                 text=(
-                    f"El autómata actual es de tipo {self.tipo}.\n"
+                    f"El autómata actual es de tipo "
+                    f"{self.tipo}.\n"
                     "La minimización solamente puede "
                     "realizarse sobre un AFD.\n\n"
-                    "Puede utilizar primero la opción AFN → AFD."
+                    "Puede utilizar primero AFN → AFD."
                 ),
+                text_color=COLOR_ADVERTENCIA,
                 font=ctk.CTkFont(
                     size=16,
                     weight="bold"
                 )
             ).grid(
-                row=0,
+                row=1,
                 column=0,
                 columnspan=2,
                 padx=20,
-                pady=25
+                pady=(5, 25)
             )
 
             return
@@ -189,11 +223,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Tipo:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=0,
+            row=1,
             column=0,
             padx=20,
             pady=7,
@@ -202,9 +237,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text="AFD"
+            text="AFD",
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=0,
+            row=1,
             column=1,
             padx=20,
             pady=7,
@@ -218,11 +254,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Autómata:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=1,
+            row=2,
             column=0,
             padx=20,
             pady=7,
@@ -232,10 +269,11 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text=self.automata.nombre,
+            text_color=TEXTO_NORMAL,
             wraplength=700,
             justify="left"
         ).grid(
-            row=1,
+            row=2,
             column=1,
             padx=20,
             pady=7,
@@ -259,11 +297,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=2,
+            row=3,
             column=0,
             padx=20,
             pady=7,
@@ -273,10 +312,11 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text=estados,
+            text_color=TEXTO_NORMAL,
             wraplength=700,
             justify="left"
         ).grid(
-            row=2,
+            row=3,
             column=1,
             padx=20,
             pady=7,
@@ -290,11 +330,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Cantidad de estados:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=3,
+            row=4,
             column=0,
             padx=20,
             pady=7,
@@ -307,9 +348,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 len(
                     self.automata.estados
                 )
-            )
+            ),
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=3,
+            row=4,
             column=1,
             padx=20,
             pady=7,
@@ -323,11 +365,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estado inicial:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=4,
+            row=5,
             column=0,
             padx=20,
             pady=7,
@@ -336,9 +379,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=self.automata.estado_inicial
+            text=self.automata.estado_inicial,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=4,
+            row=5,
             column=1,
             padx=20,
             pady=7,
@@ -362,11 +406,12 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados finales:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=5,
+            row=6,
             column=0,
             padx=20,
             pady=7,
@@ -375,9 +420,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkLabel(
             self.frame_info,
-            text=finales
+            text=finales,
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=5,
+            row=6,
             column=1,
             padx=20,
             pady=7,
@@ -395,27 +441,31 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
         ctk.CTkLabel(
             self.frame_info,
             text="Estados alcanzables:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
         ).grid(
-            row=6,
+            row=7,
             column=0,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
         ctk.CTkLabel(
             self.frame_info,
             text=str(
-                len(alcanzables)
-            )
+                len(
+                    alcanzables
+                )
+            ),
+            text_color=TEXTO_NORMAL
         ).grid(
-            row=6,
+            row=7,
             column=1,
             padx=20,
-            pady=7,
+            pady=(7, 18),
             sticky="w"
         )
 
@@ -426,7 +476,11 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
     def crear_controles(self):
 
         self.frame_controles = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_controles.grid(
@@ -442,23 +496,45 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
+        self.frame_controles.grid_columnconfigure(
+            1,
+            weight=1
+        )
+
+        ctk.CTkLabel(
+            self.frame_controles,
+            text="Minimización",
+            text_color=TEXTO_TITULO,
+            font=ctk.CTkFont(
+                size=19,
+                weight="bold"
+            )
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            padx=20,
+            pady=(18, 5)
+        )
+
         self.lbl_estado_minimizacion = ctk.CTkLabel(
             self.frame_controles,
             text=(
                 "Presione Minimizar para analizar "
                 "los estados del AFD."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=14
             )
         )
 
         self.lbl_estado_minimizacion.grid(
-            row=0,
+            row=1,
             column=0,
             columnspan=2,
             padx=20,
-            pady=(15, 10)
+            pady=(5, 12)
         )
 
         # -----------------------------------------------------
@@ -470,14 +546,18 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             text="Minimizar AFD",
             width=200,
             height=42,
-            command=self.minimizar
+            command=self.minimizar,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_minimizar.grid(
-            row=1,
+            row=2,
             column=0,
-            padx=10,
-            pady=(5, 20)
+            padx=(20, 10),
+            pady=(5, 20),
+            sticky="e"
         )
 
         # -----------------------------------------------------
@@ -490,19 +570,23 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             width=200,
             height=42,
             command=self.usar_afd_minimo,
-            state="disabled"
+            state="disabled",
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON,
+            text_color_disabled=(
+                "#969696",
+                "#A8A8A8"
+            )
         )
 
         self.btn_usar_minimo.grid(
-            row=1,
+            row=2,
             column=1,
-            padx=10,
-            pady=(5, 20)
+            padx=(10, 20),
+            pady=(5, 20),
+            sticky="w"
         )
-
-        # -----------------------------------------------------
-        # DESHABILITAR
-        # -----------------------------------------------------
 
         if (
             self.automata is None
@@ -517,7 +601,8 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 text=(
                     "Debe cargar un AFD para "
                     "utilizar esta función."
-                )
+                ),
+                text_color=COLOR_ADVERTENCIA
             )
 
     # =========================================================
@@ -527,7 +612,11 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
     def crear_resultado(self):
 
         self.frame_resultado = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_resultado.grid(
@@ -543,13 +632,10 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             weight=1
         )
 
-        # -----------------------------------------------------
-        # TÍTULO
-        # -----------------------------------------------------
-
         ctk.CTkLabel(
             self.frame_resultado,
             text="Resultado de la minimización",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=20,
                 weight="bold"
@@ -561,16 +647,13 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             pady=(18, 5)
         )
 
-        # -----------------------------------------------------
-        # RESUMEN
-        # -----------------------------------------------------
-
         self.lbl_resumen = ctk.CTkLabel(
             self.frame_resultado,
             text=(
                 "Todavía no se ha realizado "
                 "ninguna minimización."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=15,
                 weight="bold"
@@ -584,17 +667,17 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             pady=10
         )
 
-        # -----------------------------------------------------
-        # TEXTO
-        # -----------------------------------------------------
-
         self.txt_resultado = ctk.CTkTextbox(
             self.frame_resultado,
             height=400,
             font=(
                 "Consolas",
                 14
-            )
+            ),
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.txt_resultado.grid(
@@ -609,7 +692,7 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             state="disabled"
         )
 
-        # =========================================================
+    # =========================================================
     # MINIMIZAR
     # =========================================================
 
@@ -657,17 +740,9 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
 
         try:
 
-            # =================================================
-            # MINIMIZAR
-            # =================================================
-
             self.afd_minimo = minimizar_afd(
                 self.automata
             )
-
-            # =================================================
-            # INFORMACIÓN GENERAL
-            # =================================================
 
             cantidad_original = len(
                 self.automata.estados
@@ -682,10 +757,6 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 - cantidad_minima
             )
 
-            # =================================================
-            # FORMATEAR RESULTADO
-            # =================================================
-
             texto = formatear_minimizacion(
                 self.afd_minimo
             )
@@ -696,15 +767,20 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 + "COMPARACIÓN\n"
                 + "=" * 60
                 + "\n\n"
-                + f"Estados del AFD original: {cantidad_original}\n"
-                + f"Estados del AFD mínimo:   {cantidad_minima}\n"
-                + f"Reducción total:          {eliminados}\n\n"
+                + (
+                    "Estados del AFD original: "
+                    f"{cantidad_original}\n"
+                )
+                + (
+                    "Estados del AFD mínimo:   "
+                    f"{cantidad_minima}\n"
+                )
+                + (
+                    "Reducción total:          "
+                    f"{eliminados}\n\n"
+                )
                 + texto
             )
-
-            # =================================================
-            # MOSTRAR
-            # =================================================
 
             self.txt_resultado.configure(
                 state="normal"
@@ -724,18 +800,15 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 state="disabled"
             )
 
-            # =================================================
-            # RESUMEN
-            # =================================================
-
             if cantidad_minima < cantidad_original:
 
                 self.lbl_resumen.configure(
                     text=(
-                        f"Minimización completada: "
+                        "Minimización completada: "
                         f"{cantidad_original} estados → "
                         f"{cantidad_minima} estados"
-                    )
+                    ),
+                    text_color=COLOR_EXITO
                 )
 
             else:
@@ -744,13 +817,15 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                     text=(
                         "El AFD ya era mínimo: "
                         f"{cantidad_minima} estados."
-                    )
+                    ),
+                    text_color=COLOR_EXITO
                 )
 
             self.lbl_estado_minimizacion.configure(
                 text=(
                     "AFD mínimo generado correctamente."
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.btn_usar_minimo.configure(
@@ -770,13 +845,24 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 (
                     "Minimización completada correctamente "
                     f"para {self.automata.nombre}. "
-                    f"Estados originales: {cantidad_original}. "
-                    f"Estados mínimos: {cantidad_minima}. "
-                    f"Estados eliminados: {eliminados}"
+                    f"Estados originales: "
+                    f"{cantidad_original}. "
+                    f"Estados mínimos: "
+                    f"{cantidad_minima}. "
+                    f"Estados eliminados: "
+                    f"{eliminados}"
                 )
             )
 
         except Exception as error:
+
+            self.lbl_estado_minimizacion.configure(
+                text=(
+                    "No fue posible realizar "
+                    "la minimización."
+                ),
+                text_color=COLOR_ERROR
+            )
 
             registrar_error(
                 "MINIMIZACION",
@@ -795,7 +881,7 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 )
             )
 
-        # =========================================================
+    # =========================================================
     # USAR AFD MÍNIMO
     # =========================================================
 
@@ -807,7 +893,8 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
                 "MINIMIZACION",
                 (
                     "Se intentó usar un AFD mínimo "
-                    "sin realizar primero la minimización"
+                    "sin realizar primero "
+                    "la minimización"
                 )
             )
 
@@ -855,7 +942,16 @@ class MinimizarAFDFrame(ctk.CTkScrollableFrame):
             text=(
                 "El AFD mínimo fue cargado "
                 "como autómata actual."
-            )
+            ),
+            text_color=COLOR_EXITO
+        )
+
+        self.lbl_resumen.configure(
+            text=(
+                "El AFD mínimo está siendo utilizado "
+                "como autómata actual."
+            ),
+            text_color=COLOR_EXITO
         )
 
         self.btn_usar_minimo.configure(

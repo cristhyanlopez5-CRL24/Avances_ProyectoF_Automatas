@@ -25,6 +25,22 @@ from utilidades.registro_logs import (
     registrar_error
 )
 
+from utilidades.tema import (
+    FONDO_APP,
+    FONDO_PANEL,
+    FONDO_ENTRADA,
+    TEXTO_TITULO,
+    TEXTO_NORMAL,
+    TEXTO_SUAVE,
+    BOTON_PRINCIPAL,
+    BOTON_PRINCIPAL_HOVER,
+    TEXTO_BOTON,
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    COLOR_ERROR
+)
+
 
 class ExpresionesRegularesFrame(
     ctk.CTkScrollableFrame
@@ -74,7 +90,8 @@ class ExpresionesRegularesFrame(
 
         titulo = ctk.CTkLabel(
             self,
-            text="Expresiones regulares",
+            text="EXPRESIONES REGULARES",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=28,
                 weight="bold"
@@ -90,10 +107,10 @@ class ExpresionesRegularesFrame(
         descripcion = ctk.CTkLabel(
             self,
             text=(
-                "Ingrese una expresión regular "
-                "para analizarla, validar cadenas "
-                "y generar su autómata."
+                "Analice expresiones regulares, "
+                "valide cadenas y genere un AFN."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=14
             )
@@ -111,6 +128,7 @@ class ExpresionesRegularesFrame(
                 "Operadores disponibles: "
                 "|   *   +   ?   ( )   ε"
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=13
             )
@@ -130,7 +148,11 @@ class ExpresionesRegularesFrame(
 
         self.frame_formulario = (
             ctk.CTkFrame(
-                self
+                self,
+                fg_color=FONDO_APP,
+                border_width=1,
+                border_color=COLOR_BORDE,
+                corner_radius=12
             )
         )
 
@@ -150,6 +172,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_formulario,
             text="Ingresar expresión regular",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -165,6 +188,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_formulario,
             text="Nombre:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -181,7 +205,10 @@ class ExpresionesRegularesFrame(
             placeholder_text=(
                 "Ejemplo: Termina en 01"
             ),
-            height=40
+            height=40,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_nombre.grid(
@@ -196,6 +223,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_formulario,
             text="Regex:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -212,7 +240,10 @@ class ExpresionesRegularesFrame(
             placeholder_text=(
                 "Ejemplo: (0|1)*01"
             ),
-            height=42
+            height=42,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_regex.grid(
@@ -234,7 +265,10 @@ class ExpresionesRegularesFrame(
                 text="Analizar",
                 width=130,
                 height=42,
-                command=self.analizar
+                command=self.analizar,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -251,7 +285,10 @@ class ExpresionesRegularesFrame(
                 text="Limpiar",
                 width=130,
                 height=40,
-                command=self.limpiar
+                command=self.limpiar,
+                fg_color=BOTON_PRINCIPAL,
+                hover_color=BOTON_PRINCIPAL_HOVER,
+                text_color=TEXTO_BOTON
             )
         )
 
@@ -268,6 +305,7 @@ class ExpresionesRegularesFrame(
                 "Ejemplos:  a|b     ab     "
                 "(a|b)*     (0|1)*01     a|ε"
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=12
             )
@@ -287,7 +325,11 @@ class ExpresionesRegularesFrame(
 
         self.frame_resultado = (
             ctk.CTkFrame(
-                self
+                self,
+                fg_color=FONDO_APP,
+                border_width=1,
+                border_color=COLOR_BORDE,
+                corner_radius=12
             )
         )
 
@@ -307,6 +349,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_resultado,
             text="Resultado del análisis",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -324,6 +367,7 @@ class ExpresionesRegularesFrame(
                 "Ingrese una expresión regular "
                 "y presione Analizar."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=16,
                 weight="bold"
@@ -344,7 +388,11 @@ class ExpresionesRegularesFrame(
                 font=(
                     "Consolas",
                     14
-                )
+                ),
+                fg_color=FONDO_ENTRADA,
+                text_color=TEXTO_NORMAL,
+                border_width=1,
+                border_color=COLOR_BORDE
             )
         )
 
@@ -367,7 +415,11 @@ class ExpresionesRegularesFrame(
     def crear_generacion_automata(self):
 
         self.frame_generacion = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_generacion.grid(
@@ -386,6 +438,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_generacion,
             text="Generar autómata desde la regex",
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -405,6 +458,7 @@ class ExpresionesRegularesFrame(
                 "a un AFN-ε mediante la construcción "
                 "de Thompson."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=13
             )
@@ -421,6 +475,7 @@ class ExpresionesRegularesFrame(
             text=(
                 "Primero analice una expresión regular."
             ),
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 size=15,
                 weight="bold"
@@ -440,7 +495,10 @@ class ExpresionesRegularesFrame(
             text="Generar AFN",
             width=180,
             height=42,
-            command=self.generar_afn
+            command=self.generar_afn,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_generar_afn.grid(
@@ -460,7 +518,14 @@ class ExpresionesRegularesFrame(
                 self.ventana_principal
                 .mostrar_diagrama
             ),
-            state="disabled"
+            state="disabled",
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON,
+            text_color_disabled=(
+                "#969696",
+                "#A8A8A8"
+            )
         )
 
         self.btn_ver_afn.grid(
@@ -478,7 +543,11 @@ class ExpresionesRegularesFrame(
     def crear_validacion_cadena(self):
 
         self.frame_validacion = ctk.CTkFrame(
-            self
+            self,
+            fg_color=FONDO_APP,
+            border_width=1,
+            border_color=COLOR_BORDE,
+            corner_radius=12
         )
 
         self.frame_validacion.grid(
@@ -500,6 +569,7 @@ class ExpresionesRegularesFrame(
                 "Validar cadena con la "
                 "expresión regular"
             ),
+            text_color=TEXTO_TITULO,
             font=ctk.CTkFont(
                 size=19,
                 weight="bold"
@@ -515,6 +585,7 @@ class ExpresionesRegularesFrame(
         ctk.CTkLabel(
             self.frame_validacion,
             text="Cadena:",
+            text_color=TEXTO_NORMAL,
             font=ctk.CTkFont(
                 weight="bold"
             )
@@ -530,7 +601,10 @@ class ExpresionesRegularesFrame(
             placeholder_text=(
                 "Ejemplo: 1101"
             ),
-            height=42
+            height=42,
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_color=COLOR_BORDE
         )
 
         self.entry_cadena.grid(
@@ -551,7 +625,10 @@ class ExpresionesRegularesFrame(
             text="Validar cadena",
             width=140,
             height=42,
-            command=self.validar_cadena
+            command=self.validar_cadena,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_validar_cadena.grid(
@@ -566,7 +643,10 @@ class ExpresionesRegularesFrame(
             text="Limpiar",
             width=100,
             height=42,
-            command=self.limpiar_validacion
+            command=self.limpiar_validacion,
+            fg_color=BOTON_PRINCIPAL,
+            hover_color=BOTON_PRINCIPAL_HOVER,
+            text_color=TEXTO_BOTON
         )
 
         self.btn_limpiar_cadena.grid(
@@ -582,6 +662,7 @@ class ExpresionesRegularesFrame(
                 "Puede dejar la cadena vacía "
                 "para evaluar ε."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=12
             )
@@ -598,6 +679,7 @@ class ExpresionesRegularesFrame(
             text=(
                 "Ingrese una cadena para validarla."
             ),
+            text_color=TEXTO_SUAVE,
             font=ctk.CTkFont(
                 size=16,
                 weight="bold"
@@ -618,7 +700,11 @@ class ExpresionesRegularesFrame(
             font=(
                 "Consolas",
                 14
-            )
+            ),
+            fg_color=FONDO_ENTRADA,
+            text_color=TEXTO_NORMAL,
+            border_width=1,
+            border_color=COLOR_BORDE
         )
 
         self.txt_validacion.grid(
@@ -708,14 +794,16 @@ class ExpresionesRegularesFrame(
             self.lbl_estado.configure(
                 text=(
                     "EXPRESIÓN REGULAR VÁLIDA"
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.lbl_generacion.configure(
                 text=(
                     "Regex lista para generar "
                     "su AFN-ε."
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.btn_ver_afn.configure(
@@ -748,14 +836,16 @@ class ExpresionesRegularesFrame(
             self.lbl_estado.configure(
                 text=(
                     "EXPRESIÓN REGULAR INVÁLIDA"
-                )
+                ),
+                text_color=COLOR_ERROR
             )
 
             self.lbl_generacion.configure(
                 text=(
                     "No existe una regex válida "
                     "para generar el AFN."
-                )
+                ),
+                text_color=COLOR_ADVERTENCIA
             )
 
             self.btn_ver_afn.configure(
@@ -892,7 +982,8 @@ class ExpresionesRegularesFrame(
                     f"{len(afn.estados)} | "
                     f"Transiciones: "
                     f"{cantidad_transiciones}"
-                )
+                ),
+                text_color=COLOR_EXITO
             )
 
             self.btn_ver_afn.configure(
@@ -926,6 +1017,13 @@ class ExpresionesRegularesFrame(
 
         except ValueError as error:
 
+            self.lbl_generacion.configure(
+                text=(
+                    "No fue posible generar el AFN."
+                ),
+                text_color=COLOR_ADVERTENCIA
+            )
+
             registrar_warning(
                 "AUTOMATA",
                 (
@@ -940,6 +1038,13 @@ class ExpresionesRegularesFrame(
             )
 
         except Exception as error:
+
+            self.lbl_generacion.configure(
+                text=(
+                    "Ocurrió un error al generar el AFN."
+                ),
+                text_color=COLOR_ERROR
+            )
 
             registrar_error(
                 "AUTOMATA",
@@ -1032,7 +1137,8 @@ class ExpresionesRegularesFrame(
             if resultado["aceptada"]:
 
                 self.lbl_resultado_cadena.configure(
-                    text="CADENA ACEPTADA"
+                    text="CADENA ACEPTADA",
+                    text_color=COLOR_EXITO
                 )
 
                 estado = (
@@ -1046,7 +1152,8 @@ class ExpresionesRegularesFrame(
             else:
 
                 self.lbl_resultado_cadena.configure(
-                    text="CADENA RECHAZADA"
+                    text="CADENA RECHAZADA",
+                    text_color=COLOR_ERROR
                 )
 
                 estado = (
@@ -1075,7 +1182,8 @@ class ExpresionesRegularesFrame(
         except ValueError as error:
 
             self.lbl_resultado_cadena.configure(
-                text="NO FUE POSIBLE VALIDAR"
+                text="NO FUE POSIBLE VALIDAR",
+                text_color=COLOR_ADVERTENCIA
             )
 
             self.limpiar_texto_validacion()
@@ -1199,7 +1307,8 @@ class ExpresionesRegularesFrame(
         self.lbl_resultado_cadena.configure(
             text=(
                 "Ingrese una cadena para validarla."
-            )
+            ),
+            text_color=TEXTO_SUAVE
         )
 
         self.limpiar_texto_validacion()
@@ -1230,14 +1339,16 @@ class ExpresionesRegularesFrame(
             text=(
                 "Ingrese una expresión regular "
                 "y presione Analizar."
-            )
+            ),
+            text_color=TEXTO_SUAVE
         )
 
         self.lbl_generacion.configure(
             text=(
                 "Primero analice una "
                 "expresión regular."
-            )
+            ),
+            text_color=TEXTO_NORMAL
         )
 
         self.btn_ver_afn.configure(
