@@ -568,4 +568,3 @@ def construir_afn_thompson(
 
     return afn
 
-# SI SE PUDO HJPTM ;D
