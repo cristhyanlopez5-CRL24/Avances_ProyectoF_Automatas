@@ -26,6 +26,7 @@ from utilidades.tema import (
     COLOR_BORDE,
     COLOR_EXITO,
     COLOR_ADVERTENCIA,
+    TEXTO_DESHABILITADO,
     COLOR_ERROR
 )
 
@@ -572,10 +573,7 @@ class ConversionAFNaAFDFrame(
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            text_color_disabled=(
-                "#969696",
-                "#A8A8A8"
-            )
+            text_color_disabled=TEXTO_DESHABILITADO
         )
 
         self.btn_usar_afd.grid(
@@ -706,6 +704,11 @@ class ConversionAFNaAFDFrame(
                 )
             )
 
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un AFN cargado.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 "Primero debe crear un AFN."
@@ -721,6 +724,11 @@ class ConversionAFNaAFDFrame(
                     "Se intentó realizar una conversión "
                     f"AFN → AFD utilizando un {self.tipo}"
                 )
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: La conversión requiere un AFN.",
+                "advertencia"
             )
 
             messagebox.showwarning(
@@ -814,12 +822,13 @@ class ConversionAFNaAFDFrame(
                 state="normal"
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: AFN - "
                     f"{self.automata.nombre} | "
-                    f"AFD equivalente generado"
-                )
+                    "AFD equivalente generado"
+                ),
+                "exito"
             )
 
             registrar_info(
@@ -841,6 +850,14 @@ class ConversionAFNaAFDFrame(
                     "la conversión."
                 ),
                 text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Error durante "
+                    "la conversión AFN → AFD."
+                ),
+                "error"
             )
 
             registrar_error(

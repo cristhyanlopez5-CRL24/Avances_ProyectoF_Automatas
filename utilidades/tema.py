@@ -45,6 +45,11 @@ TEXTO_SUAVE = (
     "#B8BAC7"
 )
 
+TEXTO_DESHABILITADO = (
+    "#969696",
+    "#A8A8A8"
+)
+
 
 # ------------------------------------------------------------
 # BOTONES PRINCIPALES
@@ -69,9 +74,6 @@ TEXTO_BOTON = (
 # ------------------------------------------------------------
 # BOTÓN DE REINICIO / ACCIÓN DE RIESGO
 # ------------------------------------------------------------
-
-# Se utiliza el color contrario a los demás botones
-# para distinguirlo visualmente.
 
 BOTON_PELIGRO = (
     "#A31621",

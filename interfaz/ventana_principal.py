@@ -46,12 +46,16 @@ from utilidades.tema import (
     TEXTO_TITULO,
     TEXTO_NORMAL,
     TEXTO_SUAVE,
+    TEXTO_DESHABILITADO,
     BOTON_PRINCIPAL,
     BOTON_PRINCIPAL_HOVER,
     TEXTO_BOTON,
     BOTON_PELIGRO,
     BOTON_PELIGRO_HOVER,
-    COLOR_BORDE
+    COLOR_BORDE,
+    COLOR_EXITO,
+    COLOR_ADVERTENCIA,
+    COLOR_ERROR
 )
 
 
@@ -132,10 +136,7 @@ class VentanaPrincipal(ctk.CTk):
             fg_color=BOTON_PRINCIPAL,
             hover_color=BOTON_PRINCIPAL_HOVER,
             text_color=TEXTO_BOTON,
-            text_color_disabled=(
-                "#969696",
-                "#A8A8A8"
-            ),
+           text_color_disabled=TEXTO_DESHABILITADO,
             corner_radius=8,
             font=ctk.CTkFont(
                 size=14,
@@ -637,7 +638,7 @@ class VentanaPrincipal(ctk.CTk):
             weight=1
         )
 
-    # =========================================================
+      # =========================================================
     # BARRA DE ESTADO
     # =========================================================
 
@@ -662,6 +663,45 @@ class VentanaPrincipal(ctk.CTk):
             pady=(0, 18),
             sticky="sew"
         )
+
+    # =========================================================
+    # ACTUALIZAR BARRA DE ESTADO
+    # =========================================================
+
+    def actualizar_barra_estado(
+        self,
+        texto,
+        tipo="normal"
+    ):
+
+        colores = {
+            "normal": TEXTO_NORMAL,
+            "exito": COLOR_EXITO,
+            "advertencia": COLOR_ADVERTENCIA,
+            "error": COLOR_ERROR
+        }
+
+        color = colores.get(
+            tipo,
+            TEXTO_NORMAL
+        )
+
+        self.lbl_estado.configure(
+            text=texto,
+            text_color=color
+        )
+
+    # =========================================================
+    # LIMPIAR CONTENIDO
+    # =========================================================
+
+    def limpiar_contenido(self):
+
+        for widget in (
+            self.frame_contenido.winfo_children()
+        ):
+
+            widget.destroy()
 
     # =========================================================
     # LIMPIAR CONTENIDO
@@ -1340,12 +1380,13 @@ class VentanaPrincipal(ctk.CTk):
             in automata.transiciones.values()
         )
 
-        self.lbl_estado.configure(
-            text=(
-                f"Estado: {tipo} cargado - "
-                f"{automata.nombre} | "
-                f"{cantidad} transiciones"
-            )
+        self.actualizar_barra_estado(
+      (
+        f"Estado: {tipo} cargado - "
+        f"{automata.nombre} | "
+        f"{cantidad} transiciones"
+     ),
+         "exito"
         )
 
         self.actualizar_estado_botones()
@@ -1380,10 +1421,9 @@ class VentanaPrincipal(ctk.CTk):
 
         self.tipo_automata_actual = None
 
-        self.lbl_estado.configure(
-            text=(
-                "Estado: No hay un autómata cargado."
-            )
+        self.actualizar_barra_estado(
+        "Estado: No hay un autómata cargado.",
+         "normal"
         )
 
         self.actualizar_estado_botones()
@@ -1517,6 +1557,16 @@ class VentanaPrincipal(ctk.CTk):
                 )
             )
 
+            self.actualizar_barra_estado(
+         (
+           f"Estado: "
+           f"{self.tipo_automata_actual} - "
+           f"{self.automata_actual.nombre} | "
+           "Guardado correctamente"
+        ),
+        "exito"
+    )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -1595,6 +1645,11 @@ class VentanaPrincipal(ctk.CTk):
                 )
             )
 
+            self.actualizar_barra_estado(
+            "Estado: Error al guardar el autómata.",
+            "error"
+        )
+
             messagebox.showerror(
                 "Error al guardar",
                 (
@@ -1665,6 +1720,11 @@ class VentanaPrincipal(ctk.CTk):
             )
 
             self.mostrar_inicio()
+
+            self.actualizar_barra_estado(
+            "Estado: Error al abrir el autómata.",
+            "error"
+        )
 
             messagebox.showinfo(
                 "Autómata cargado",

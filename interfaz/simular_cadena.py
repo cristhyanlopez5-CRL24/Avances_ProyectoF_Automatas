@@ -641,6 +641,11 @@ class SimularCadenaFrame(
                 )
             )
 
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: No hay un autómata para simular.",
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -703,6 +708,8 @@ class SimularCadenaFrame(
                     "Cadena aceptada"
                 )
 
+                tipo_barra = "exito"
+
                 registrar_info(
                     "SIMULACION",
                     (
@@ -718,6 +725,8 @@ class SimularCadenaFrame(
                     "Cadena rechazada"
                 )
 
+                tipo_barra = "advertencia"
+
                 registrar_info(
                     "SIMULACION",
                     (
@@ -727,12 +736,13 @@ class SimularCadenaFrame(
                     )
                 )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: {self.tipo} - "
                     f"{self.automata.nombre} | "
                     f"{estado_texto}"
-                )
+                ),
+                tipo_barra
             )
 
         except ValueError as error:
@@ -740,6 +750,11 @@ class SimularCadenaFrame(
             self.lbl_estado_resultado.configure(
                 text="CADENA INVÁLIDA",
                 text_color=COLOR_ADVERTENCIA
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Cadena inválida.",
+                "advertencia"
             )
 
             registrar_warning(
@@ -760,6 +775,14 @@ class SimularCadenaFrame(
             self.lbl_estado_resultado.configure(
                 text="ERROR DE SIMULACIÓN",
                 text_color=COLOR_ERROR
+            )
+
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Error inesperado "
+                    "durante la simulación."
+                ),
+                "error"
             )
 
             registrar_error(

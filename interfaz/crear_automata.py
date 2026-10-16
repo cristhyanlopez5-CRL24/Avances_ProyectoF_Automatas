@@ -21,6 +21,7 @@ from utilidades.tema import (
     BOTON_PRINCIPAL_HOVER,
     TEXTO_BOTON,
     COLOR_BORDE,
+    TEXTO_DESHABILITADO,
     COLOR_EXITO
 )
 
@@ -748,10 +749,7 @@ class CrearAutomataFrame(
                 fg_color=BOTON_PRINCIPAL,
                 hover_color=BOTON_PRINCIPAL_HOVER,
                 text_color=TEXTO_BOTON,
-                text_color_disabled=(
-                    "#969696",
-                    "#A8A8A8"
-                )
+                text_color_disabled=TEXTO_DESHABILITADO
             )
         )
 
@@ -907,6 +905,14 @@ class CrearAutomataFrame(
 
         except ValueError as error:
 
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Datos incorrectos "
+                    "para crear el autómata."
+                ),
+                "advertencia"
+            )
+
             messagebox.showerror(
                 "Datos incorrectos",
                 str(error)
@@ -988,6 +994,14 @@ class CrearAutomataFrame(
 
         if self.automata is None:
 
+            self.ventana_principal.actualizar_barra_estado(
+                (
+                    "Estado: Debe crear un autómata "
+                    "antes de agregar transiciones."
+                ),
+                "advertencia"
+            )
+
             messagebox.showwarning(
                 "Sin autómata",
                 (
@@ -1035,15 +1049,21 @@ class CrearAutomataFrame(
                 .transiciones.values()
             )
 
-            self.ventana_principal.lbl_estado.configure(
-                text=(
+            self.ventana_principal.actualizar_barra_estado(
+                (
                     f"Estado: {tipo} cargado - "
                     f"{self.automata.nombre} | "
                     f"{cantidad} transiciones"
-                )
+                ),
+                "exito"
             )
 
         except ValueError as error:
+
+            self.ventana_principal.actualizar_barra_estado(
+                "Estado: Transición inválida.",
+                "advertencia"
+            )
 
             messagebox.showerror(
                 "Transición inválida",
